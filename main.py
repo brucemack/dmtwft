@@ -73,9 +73,6 @@ def gen_audio_seq(symbols):
         result = np.append(result, data)
     return result
 
-def scom_char_translate(c):
-    pass    
-
 def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init):
 
     local_constants = dict(constants)
@@ -83,7 +80,7 @@ def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init
     warm_state = False
     cold_state = False
     skip_state = False
-    dtmf_symbols = []
+    dtmf_symbols = ""
 
     for tokens in script:  
         # Look for special commands
@@ -108,25 +105,23 @@ def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init
             print("----")
             print(tokens)
             # Resolve all named constants
-            expanded_tokens = parse.expand_tokens(constants, tokens)
+            expanded_tokens = parse.expand_tokens(local_constants, tokens)
             # Convert to DTMF
             l = []
             for token in expanded_tokens:
                 for s in parse.translate_token_to_dtmf_symbols(token):
-                    dtmf_symbols.append(s)
+                    dtmf_symbols = dtmf_symbols + s
     
     return dtmf_symbols
 
-out_fn = "demo.wav"
+out_fn = "d:/demo.wav"
 #samplerate = 44100
 sample_rate = 8000
 mag = 32767.0 / 2.0
-data = gen_dtmf_seq("139*", sample_rate, 0.1, mag / 2)
-
+#data = gen_dtmf_seq("139*", sample_rate, 0.1, mag / 2)
 #data = np.append(data, data)
-data = np.append(data, gen_audio_seq("34"))
-
-wavfile.write(out_fn, sample_rate, data.astype(np.int16))
+#data = np.append(data, gen_audio_seq("34"))
+#wavfile.write(out_fn, sample_rate, data.astype(np.int16))
 
 script = []
 
@@ -146,8 +141,13 @@ with open('tests/scom-demo-1.txt', 'r') as f:
         if len(tokens) > 0:
             script.append(tokens)
 
-print(script)
 dtmf_symbols = convert_script_to_dtmf_symbols(constants, script, True, False)
 
 print("Result")
 print(dtmf_symbols)
+
+# Convert symbols to tones
+wav_data = gen_dtmf_seq(dtmf_symbols, sample_rate, 0.075, mag / 2)
+wavfile.write(out_fn, sample_rate, wav_data.astype(np.int16))
+
+

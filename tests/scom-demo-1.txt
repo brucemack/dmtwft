@@ -1,8 +1,24 @@
 ; A very simple demo script
 ; Bruce MacKinnon KC1FSZ
 
-test=1
-$PLAY 1
-MPW 15 "CQCQ DE W1TKZ" *
+cqmsg="CQCQ DE W1TKZ"
+
+; ----- Very simple repeater configuration ------------------------------------
+; CW freq (800)
+MPW 06 1250 *
+; Initial ID
+MPW 53 "DE W1TKZ/R" *
+; Normal ID
+MPW 52 "W1TKZ/R" *
+; ID Interval is 10 minutes
+MPW 51 99 *
+
+; ----- Some Testing -----------------------------------------------------------
+; Send CQ (high 800)
+MPW 15 591250 cqmsg *
+; Send CQ (low 330)
+MPW 15 593030 cqmsg *
+
+
 
 
