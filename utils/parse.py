@@ -16,8 +16,9 @@
 *
 * NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
 """
+from utils.Token import Token
 
-def tokenize_line(line):
+def tokenize_line(line, row = 0):
     """
     Takes a line of text and breaks it into tokens.  This generally means 
     space-delimited, but quoted things are kept together.
@@ -28,9 +29,12 @@ def tokenize_line(line):
     in_quote = False
     last_token_quoted = False
     current_token = ""
+    col = 0
 
     for c in line:
-                
+
+        col = col + 1
+
         if in_delim:
             if c == " ":
                 pass
@@ -40,7 +44,7 @@ def tokenize_line(line):
                 break
             # In the special case of =, that is a token in itself
             elif c == "=":
-                result.append("=")
+                result.append(Token("=", row, col))
                 current_token = ""
                 in_delim = False
             # This is the case where we end the delimiter and start 
@@ -61,25 +65,25 @@ def tokenize_line(line):
                 current_token = current_token + c
         else:
             # Look for the end of a complete token
-            if c == " " or c == "=":
-                #current_token = current_token.strip()
+            if c == " " or c == "=" or c == "*":
                 if len(current_token) > 0:
-                    if last_token_quoted:
-                        result.append("\"" + current_token + "\"")
-                    else:
-                        result.append(current_token)
+                    result.append(Token(current_token, row, col, last_token_quoted))
                 current_token = ""
-                in_delim = True
                 last_token_quoted = False
 
-                # In the special case of =, that is a token in itself
+                # Space separates tokens (optionally)
+                if c == " ":
+                    in_delim = True
+                # In the special case of = or *, that is a token in itself
                 if c == "=":
-                    result.append("=")
-                    current_token = ""
+                    result.append(Token("=", row, col))
+                elif c == "*":
+                    result.append(Token("*", row, col))
 
             # Look for the start of a quote
             elif c == "\"":
                 in_quote = True
+            # Comments end everything
             elif c == ";":
                 break
             # Normal accumulation of a token
@@ -89,10 +93,7 @@ def tokenize_line(line):
     # Complete the the final token
     current_token = current_token.strip()
     if len(current_token) > 0:
-        if last_token_quoted:
-            result.append("\"" + current_token + "\"")
-        else:
-            result.append(current_token)
+        result.append(Token(current_token, row, col, last_token_quoted))
 
     return result 
 
@@ -106,11 +107,11 @@ def expand_tokens(named_constants, tokens):
     # Resolve all named constants
     expanded_tokens = []
     for token in tokens:
-        if token in named_constants:
+        if token.text in named_constants:
             # NOTICE: We are recursive here to make sure that any constants
             # that are referenced inside of constant definitions are also 
             # expanded.
-            for e in expand_tokens(named_constants, named_constants[token]):
+            for e in expand_tokens(named_constants, named_constants[token.text]):
                 expanded_tokens.append(e)
         else:
             expanded_tokens.append(token)
@@ -173,28 +174,32 @@ alpha_codes["'"] = "50"
 alpha_codes["!"] = "51"
 alpha_codes["\""]= "52"
 
-def translate_token_to_dtmf_symbols(token):
+def convert_token_to_dtmf_symbols(token):
     result = []
     eff_token = ""
     # For quoted tokens we need to map ASCII to the S-COM equivalent
     # codes.
-    if token.startswith("\""):
-        # Remove the quotes
-        token = token.strip('\"').upper()
+    if token.is_quoted:
         # Take the token and convert each character
-        for c in token:
+        for c in token.text:
             if c in alpha_codes:
                 eff_token = eff_token + alpha_codes[c]
             else:
-                raise Exception("Unable to resolve quoted symbol: " + c)
+                raise Exception("Unable to convert quoted symbol to DTMF: " + c + " at line " + token.row)
     else:
-        eff_token = token
+        eff_token = token.text
 
     # Look at each character in the effective token and make sure it 
     # is a valid DTMF symbol
     for c in eff_token:
         if not is_valid_dtmf_symbol(c):
-            raise Exception("Invalid: " + c)
+            raise Exception("Invalid: " + c + "at line " + token.row)
         result.append(c)
 
+    return result
+
+def convert_tokens_to_dtmf_symbols(tokens):
+    result = ""
+    for token in tokens:
+        result = result + convert_token_to_dtmf_symbols(token)
     return result
