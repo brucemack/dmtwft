@@ -13,6 +13,12 @@ $PLAY
 
 $TONECODE(hz)
 
+References
+==========
+
+S-COM
+* [The 5K Users Guide](http://www.scomcontrollers.com/downloads/5kmanualv20.pdf)
+
 Licensing 
 =========
 
