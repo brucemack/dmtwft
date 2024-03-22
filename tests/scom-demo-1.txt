@@ -1,0 +1,8 @@
+; A very simple demo script
+; Bruce MacKinnon KC1FSZ
+
+test=1
+$PLAY 1
+MPW 15 "CQCQ DE W1TKZ" *
+
+

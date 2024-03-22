@@ -1,0 +1,278 @@
+;v  W1TKZ_C.SCM                                                                                                        0
+
+; ------ Constants ------------------------------------------------
+; (Added by Bruce KC1FSZ)
+TIME=8463
+SECONDS=8466
+HMS=0467
+P15=0715
+P04=0704
+M15=0615
+HOUR=4687
+HOUC=4682
+HOUT=4688
+IDHR=4347
+DATE=3283
+Resp_Off=4120
+init=4648
+Time70=8467
+; Not sure about the numbers here?
+stdtail=2000
+Link_VU=2001
+Tail16=2002
+tail9=2003
+D002=2004
+Ahead=2005
+Back=2006
+Keyup=2007
+KeyupOff=2008
+
+; Time of day 
+; Speak: Delay, $DOW $MONTH $DAY at $12HOUR $AMPM  adjust ^R108^
+$WARMINIT
+MPW 21 TIME *			; 8463 Tx1
+MPW 21 SECONDS *		; 8466
+MPW 21 HMS *			; 0467
+MPW 21 P15 *			; 0715
+MPW 21 P04 *			; 0704
+MPW 21 M15 *			; 0615
+MPW 21 HOUR *			; 4687 annouce time on the hour
+MPW 21 HOUC *			; 4682 clear hourly time announcement
+MPW 21 HOUT *			; 4688 start annouce time 
+MPW 21 IDHR *			; 4347
+$ENDWARMINIT
+CPW 20 TIME MPW 15 9981 9960 0000 9826 9829 9828 0039 9820 9821 *	; &8463 speak $DAYOFWEEK $MONTH $DAY $HOURMIN $AMPM
+CPW 20 SECONDS MPW 15 9981 9960 0000 9832 *		; &8466 speak seconds
+CPW 20 HMS MPW 15 9981 9960 0000 9820 9832 *		; &0467 speak $HOURS $MINUTES $SECONDS
+
+CPW 20 P15 MPW 48 4 15 *				; &0715 Plus 15 seconds
+CPW 29 P15 SECONDS * 
+
+CPW 20 P04 MPW 48 4 04 *				; &0704 Plus   4 seconds
+CPW 29 P04 SECONDS * 
+
+CPW 20 M15 MPW 48 5 15 *				; &0615 Minus 15 seconds
+CPW 29 M15 SECONDS * 
+
+CPW 20 HOUR MPW 28 26 HOUT 99 99 99 00 *		; &4687 start annouce time on the hour
+CPW 20 HOUC MPW 28 26 *					; &4682 clear hourly time announcement
+
+CPW 20 HOUT MPW 15 9981 9960 0000 9822 *		; &4868 speak time
+CPW 29 HOUT 4462 *					; Morse ID 300Hz
+
+CPW 20 IDHR MPW 28 24 4463 99 99 99 00 *		; &4347 run audio identification on the hour and speak time
+
+$WARMINIT
+MPW 21 Time70 *						; &8467 Tx2
+$ENDWARMINIT 
+; Speak tx2: Delay, $DOW $MONTH $DAY at $12HOUR $AMPM female
+CPW 20 Time70 MPW 15 9983 9960 0000 9826 9829 9828 0039 9822 9823 * ;  added 02-apr
+
+; Speak: Delay, $DOW $MONTH $DAY adjust ^R108^
+$WARMINIT
+MPW 21 DATE *				; &3283 Tx1
+$ENDWARMINIT
+CPW 20 DATE   MPW 15 9981 9960 0000 9826 9829 9827 *
+
+$WARMINIT
+MPW 21 Ahead *				; spring adjust daylight savings time
+MPW 21 Back  *				; fall adjust daylight savings time
+$ENDWARMINIT
+CPW 20 Ahead MPW 48 1 *			; 02-apr-01
+CPW 20 Back  MPW 48 2 *			; 
+; MPW 28 41 Back  10 62 0200 *		; fourth Sunday in October
+MPW 28 41 Ahead 03 48 0200 *		; second Sunday in March 2007;  22-apr-01, 23-sep-2006
+MPW 28 42 Back  11 41 0200 *		; first Sunday in November 2007
+
+$SKIP		;3==========
+MPW 26 17 TIME *				; enable COR triggered macro - speak time 08-apr-01
+MPW 47 0 3 0050 0500 *			; 3 pulses of .5 sec within 5 seconds, default values
+$ENDSKIP	;3==========
+
+$WARMINIT
+MPW 21 Keyup *
+MPW 21 KeyupOff *
+$ENDWARMINIT
+CPW 20 Keyup MPW 07 *			; Key up delay .7 seconds
+CPW 29 Keyup MPW 99 10 20 *		; Rearm after two minutes
+CPW 20 KeyupOff MPW 80 00 *		; No Key up delay 
+
+
+;>>>>>     identification announcements     <<<<<
+;Delay, Speak immediate "explosion long, pause, explosion short, superman, tic, toc"
+CPW 20 5131 MPW 15 9981 9960 0000 4140 0377 4141 0377 4149 0377 4150 0377 4151 *
+
+$WARMINIT
+MPW 21 4436 *
+MPW 21 4437 *
+MPW 21 4438 *
+MPW 21 4439 *
+MPW 21 4440 *
+MPW 21 4441 *
+MPW 21 4442 *
+MPW 21 4443 *
+MPW 21 4444 *
+MPW 21 4445 *
+MPW 21 4446 *
+MPW 21 4447 *
+MPW 21 4448 *
+MPW 21 4449 *
+MPW 21 4450 *
+MPW 21 4451 *
+MPW 21 4452 *
+MPW 21 4459 *
+MPW 21 4460 *
+MPW 21 4461 *
+MPW 21 4462 *
+MPW 21 4463 *
+$ENDWARMINIT
+
+; Assign TX1/ID Delay, Morse ID 250Hz 
+CPW 20 4436 MPW 31 31 9981 9900 54 59 4000 "W1TKZ/R" * ; &4436	send to TX1 a morse code message with a frequency of 250Hz preceded by a one second delay
+
+; Assign TX1/ID Delay, Morse ID 300Hz 
+CPW 20 4437 MPW 31 31 9981 9900 54 59 3333 "W1TKZ/R" * ; &4437   32 01 29 20 35 38 27
+
+; Assign TX1/ID Delay, Morse ID 350Hz 
+CPW 20 4438 MPW 31 31 9981 9900 54 59 2857 "W1TKZ/R" * ; &4438
+
+; Assign TX1/ID Delay, Morse ID 440Hz 
+CPW 20 4439 MPW 31 31 9981 9900 54 59 2272 "W1TKZ/R" * ; &4439
+
+; Assign TX1/ID Normal - Delay, Speak "WARS Repeater W1TKZ" &4440
+CPW 20 4440 MPW 31 31 9981 9960 0000 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 * ; ShortID
+
+;;;;;;;; TX1/ID #1 - Delay, Speak "W1TKZ Repeater"6  "147.03 444.6"11 
+;CPW 20 4441 MPW 31 31 9981 9960 0000 0565 0359 0485 0260 0594 0421 0359 0177 0446 0387 0595 0511 ;0177 0177 0177 0387 0457 9999 4442 *
+
+; TX1/ID #1 - Delay, Speak "W1TKZ Repeater System"7  "set 1 2 3 . 0"6   &4441
+MPW 20 4441 MPW 31 31 9981 9960 0000 0565 0359 0485 0260 0594 0421 0484 0445 0359 0538 0511 0387 0595 9999 4442 *
+; Welcome this is the WARS 0576 0509 0500 0565 0001 0401 0431 
+
+; TX1/ID #2 - Delay, Speak "W1TKZ Repeater"6  "link to 444.6"7   &4442
+CPW 20 4442 MPW 31 31 9981 9960 0000 0565 0359 0485 0260 0594 0421 0280 0538 0177 0177 0177 0387 0457 9999 4443 *
+
+; TX1/ID #3 - Delay, Speak "Welcome it is $DOW $MONTH $DATE on the W1TKZ Repeater"14
+CPW 20 4443 MPW 31 31 9981 9960 0000 0576 0254 0253 9826 9829 9828 0358 0500 0565 0359 0485 0260 0594 0421 9999 4444*
+
+; TX1/ID #4 - Delay, Speak "WARS net Wednesday at 8 PM W1TKZ Repeater"15 &4444
+CPW 20 4444 MPW 31 31 9981 9960 0000 0565 0001 0401 0431 0331 0574 0039 0129 0386 0565 0359 0485 0260 0594 0421 9999 4445*
+
+; TX1/ID #5 - Delay, Speak "NARA net Sunday at 9 PM W1TKZ Repeater"15
+CPW 20 4445 MPW 31 31 9981 9960 0000 0328 0001 0401 0001 0331 0482 0039 0335 0386 0565 0359 0485 0260 0594 0421 9999 4447*
+
+; TX1/ID #6 - Delay, Speak "WARS 440 zone 88.5 W1TKZ "17    PL 0369 0264 
+; CPW 20 4446 MPW 31 31 9981 9960 0000 0565 0001 0401 0431 0177 0176 0596 0132 0129 0387 0166 0565 0359 0485 0260 0594 9999 4447 *
+
+; TX1/ID #7 - In Morse code "W1TKZ/R Wellesley, Mass"
+CPW 20 4447 MPW 31 31 9981 9900 "W1TKZ/R Wellesley, Mass" 9999 4449*
+
+$SKIP		;4 disable message
+; TX1/ID #8 - Delay, Speak "WARS meeting third Thursday of the month W1TKZ"15
+CPW 20 4448 MPW 31 31 9981 9960 0000 0565 0001 0401 0431 0301 0505 0513 0354 0500 0321 0565 0359 0485 0260 0594 9999 4449*
+$ENDSKIP	;4================
+
+; TX1/ID #9 - Delay, Speak "Welcome this is the W1TKZ Repeater System"11  "the time is $TIME $AM/PM"5 
+CPW 20 4449 MPW 31 31 9981 9960 0000 0576 0508 0253 0500 0565 0359 0485 0260 0594 0421 0484 0500 0514 0253 9820 9821 9999 4450 *
+
+; TX1/ID #10 - Delay, Speak "WARS Repeater W1TKZ FN42ii"16  071 14.8' 42 19.9'jh 20=ji 
+CPW 20 4450 MPW 31 31 9981 9960 0000 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 0149 0328 0176 0538 0227 0227 9999 4441*
+
+; TX1/ID #11 - Delay, Speak "W1TKZ Repeater System"16 &4451
+CPW 20 4451 MPW 31 31 9981 9960 0000 0565 0359 0485 0260 0594 0421 0484 9999 4452 *
+
+; TX1/ID #12 - Delay, Speak "W1TKZ Repeater"6  "link to 444.6"7   &4452
+CPW 20 4452 MPW 31 31 9981 9960 0000 0565 0359 0485 0260 0594 0421 0280 0538 0177 0177 0177 0387 0457 9999 4451 *
+
+
+
+; TX1/ID #19 - Delay, Speak immediate "This is the W1TKZ repeat, repeat,(small explosion) Repeater"
+CPW 20 4459 MPW 15 9981 9960 0000 0508 0253 0500 0565 0359 0485 0260 0594 0420 0420 4141 0421 *
+
+; TX1 Speak immediate "Two meter W1TKZ Repeater", ID not changed 14-may
+CPW 20 4460 MPW 15 9981 9960 0538 0304 0565 0359 0485 0260 0594 0421 *	; &4460
+
+; TX1 Send immediate Morse ID 440Hz
+CPW 20 4461 MPW 15 9981 9900 592272 "W1TKZ/R" * ; &4461
+
+; TX1 Send immediate Morse ID 300Hz 
+CPW 20 4462 MPW 15 9981 9900 593333 "W1TKZ/R" * ; &4462
+
+; TX1 ID - Delay, Speak "WARS Repeater W1TKZ $TIME", ID not changed, to 147 and 444
+CPW 20 4463 MPW 15 9981 9960 0000 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 * ; ShortID &4463
+CPW 29 4463 MPW 15 9981 9983 9960 0000 9820 *		; speak time to both 
+
+$WARMINIT
+MPW 21 7430 *
+MPW 21 7439 *
+MPW 21 7440 *
+MPW 21 7441 *
+MPW 21 7442 *
+MPW 21 7443 *
+MPW 21 7444 *
+MPW 21 7460 *
+$ENDWARMINIT
+
+; Assign TX2/ID none
+CPW 20 7430 MPW 31 34 *		; NHRC handles identification for 70cm, no messages from SCOM
+
+; Assign TX2/ID  - Delay, Morse ID 440Hz
+CPW 20 7439 MPW 31 34 9983 9900 54 592272 "W1TKZ/R" * 
+
+; Assign TX2/ID Normal - Delay, Speak "four forty four(female voice) WARS Repeater W1TKZ"14 02-jan-09
+CPW 20 7440 MPW 31 34 9983 9960 0000 4107 4106 4107 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 * 
+
+; TX2/ID #1 - Delay, Speak "440% WARS Repeater W1TKZ zone(tone) 88.5"17 %female voice 04-nov-02
+CPW 20 7441 MPW 31 34 9983 9960 0000 4107 4106 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 0132 0129 0387 0166 0596 9999 7442 * 
+
+; TX2/ID #2 - Delay, Speak "W1TKZ Repeater link to 147.030"15
+CPW 20 7442 MPW 31 34 9983 9960 0000 0565 0359 0485 0260 0594 0421 0280 0538 0359 0177 0446 0387 0595 0511 0595 9999 7443*
+
+; TX2/ID #3 - Delay, Speak "This is the W1TKZ Repeater System the time is(Speak Time) $HOURMINUTE $AM/PM (female voice)"14  08-apr, 06-may
+CPW 20 7443 MPW 31 34 9983 9960 0000 0509 0500 0565 0359 0485 0260 0594 0421 0484 0500 0514 0253 9822 9823 9999 7444 *
+
+; TX2/ID #4 - Delay, Speak "Good Morning% WARS Repeater W1TKZ use 88.5"17 08-apr, 06-may
+;		%Good Morning/Afternoon/Evening, female voice 		0509 0500 0177 0176 * this is the four forty 
+CPW 20 7444 MPW 31 34 9983 9960 0000 9830 0565 0001 0401 0431 0421 0565 0359 0485 0260 0594 0550 0132 0129 0387 0166 9999 7445*
+
+; TX2/ID #5 - Delay, Speak "Whiskey One Tango Kilo Zulu Repeater "6
+CPW 20 7445 MPW 31 34 9983 9960 0000 0578 0359 0487 0262 0597 0421 9999 7441*
+
+; TX2 Speak immediate "440 W1TKZ Repeater" 08-apr, 06-may, 14-may, 04-nov-02
+CPW 20 7460 MPW 15 9983 9960 4107 4106 0565 0359 0485 0260 0594 0421 * 
+
+; >>>>>     clean up and configure     <<<<<
+$WARMINIT
+MPW 21 init * 			; power up macro
+MPW 21 d002 *
+MPW 21 d003 *
+$ENDWARMINIT
+
+MPW 26 00 init *		; define Power on macro 4648
+
+CPW 20 init  stdtail *		; &4648 Start 2 meter tail sequence
+CPW 29 init  Link_VU *		; Link 147 and 444
+CPW 29 init  Tail16 *		; change tail on power cycle to P
+; CPW 29 init  tail9 *			; 1480/1760 20ms
+CPW 29 init  D002 *
+
+CPW 20 D002  MPW 15 9960 0390 0548 0088 0039 9824 9899 0416 * ; Say "power up complete at $TIME $SW release"
+CPW 29 D002  MPW 15 9960 0293 0536 0086 0548 0103 0377 4144 * ; "March twentieth code up date PAUSE (LASER)"
+CPW 29 D002  D003 *
+CPW 20 D003  MPW 28 22 D007 99 99 99 30 * ; &D002 make announcements at *:30, D007 cancel at 99:35
+; January   = 0256   February  = 0155   March     = 0293   April     = 0033
+; May       = 0295   June      = 0259   July      = 0258   August    = 0041
+; September = 0442   October   = 0353   November  = 0348   December  = 0106
+; first     = 0165   tenth     = 0496   twentieth = 0536   
+; end power up macro
+
+; cmddisable *			; disable commands through 2 meters
+MPW 12 6 *				; Normal 20 WPM Morse code
+MPW 31 01 9900 "OK" *		; program command response message
+MPW 06 00 1136 *			; 880Hz Morse tone
+Resp_Off *				;  4120
+
+MPW 98 001 *			; delay 1 sec
+init *				; run init macro 4648 
+
+; End of script
