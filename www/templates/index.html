@@ -16,7 +16,7 @@ repeater controller.</p>
         <p class="disclaimer">This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
 suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db/kc1fsz">good in QRZ</a>).  Please don't bother S-COM with support requests!</p>
         <fieldset>
-            <legend>Step 1: Select A File</legend>
+            <legend>Step 1: Select a File (in S-COM Programmer format)</legend>
             <form id="form_1a" method="post" action="robot-form-1a" enctype="multipart/form-data">
                 <label for="upload_file">Upload Your Own File:</label>
                 <input id="upload_file" name="upload_file" type="file" title=" "/>
@@ -26,30 +26,30 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
                 <label for="url_file">Pull a File From the Web:</label>
                 <input id="url_file" name="url_file" type="text" placeholder="http://yourfile_url" 
                     value="{{ url_file }}" size="60"/>
-                <br/>
-                <i>(This option can be be used to generate DTMF from a repeater script stored in GITHUB or some other 
-version code repository.)</i>
+                <i><small>(This option can be be used to generate DTMF from a repeater script stored in GITHUB or some other 
+version code repository.)</small></i>
             </form>
         </fieldset>
         <br/>
         <form id="form_2" method="post" action="robot-form-2">
             <fieldset>
-                <legend>Step 2: Generate DTMF Stream</legend>
+                <legend>Step 2: Generate a DTMF Stream</legend>
                 <label for="mpw">Master Password</label>
-                <input type="text" value="{{mpw}}" id="mpw" name="mpw" size="6"/>
+                <input type="text" value="{{mpw}}" id="mpw" name="mpw" size="4"/>
                 <label for="cpw">Control Password</label>
-                <input type="text" value="{{cpw}}" id="cpw" name="cpw" size="6"/>
+                <input type="text" value="{{cpw}}" id="cpw" name="cpw" size="4"/>
                 <label for="cpw">Autopatch Password</label>
-                <input type="text" value="{{apw}}" id="apw" name="apw" size="6"/>
+                <input type="text" value="{{apw}}" id="apw" name="apw" size="4"/>
                 <label for="cpw">Remote Base Password</label>
-                <input type="text" value="{{rbpw}}" id="rbpw" name="rbpw" size="6"/>
+                <input type="text" value="{{rbpw}}" id="rbpw" name="rbpw" size="4"/>
                 <br/>
-                <label for="warminit">Warm?</label>
+                <label for="warminit">Warm Initialization?</label>
                 <input type="checkbox" {{ "checked" if warminit == "on" }} id="warminit" name="warminit"/>
+                <br/>
                 <label for="tone_dur">Tone (ms)</label>
-                <input type="text" value="{{tone_dur}}" id="tone_dur" name="tone_dur" size="6"/>
+                <input type="text" value="{{tone_dur}}" id="tone_dur" name="tone_dur" size="4"/>
                 <label for="gap_dur">Pause (ms)</label>
-                <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="6"/>
+                <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="4"/>
                 <br/>
                 <input class="generate-button" type="submit" value="Generate" onclick="show_spinner()"/>
             </fieldset>
@@ -84,6 +84,8 @@ version code repository.)</i>
 {{ contents }}    
 </pre>
         </div>
+        <hr/>
+        <i>Copyright (C) 2024 - Bruce MacKinnon KC1FSZ</i>
     </body>
     <script src="assets/index.js"></script>        
 </html>
