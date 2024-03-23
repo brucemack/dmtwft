@@ -1,0 +1,311 @@
+; S-COM Programmer Sample Script file
+;  5/7/97, Dave Maciorowski, wa1jhk@ix.netcom.com
+;
+; Comments begin with a semi-colon and can be on the end
+;   of lines containing commands.
+;
+; This Script File can be used with the controller in any 
+;   condition.
+;
+; NOTE: there are three resources that MUST be considered when
+;   programming a script that can be sent to a controller either
+;   "Initialized" with default passwords and all resources
+;   erased, or when the controller has been previously programmed:
+;
+;      Passwords: passwords are defined in the Settings|Edit Sites 
+;        form or changed in the Control|Change Passwords form.
+;        (Search Help for "Passwords".)
+;          Master Password is MPW
+;          Control Operator Password is CPW
+;          Autopatch Password is APW (6K and 7K)
+;          Remote Base Password is RBPW  (7K Version 2.01 or newer)
+;
+;      Macros: You cannot create a macro with the same name as one
+;        that already exists.  To send a script of commands to a
+;        previously-programmed controller, preceed each macro
+;        definition with a command to erase a macro with that name.
+;        Use the $WARMINIT and $ENDWARMINIT Script Controls to skip
+;        these commands when programming a new controller.  
+;        (See examples, below.)
+;
+;      Accept/Reject Number Lists: these lists have only 20 slots
+;        available. These lists must be erased before entering
+;        table entries to prevent duplicates and to prevent
+;        overflow of the table.  Use the $WARMINIT and $ENDWARMINIT 
+;        Script Controls to skip these commands when programming a 
+;        new controller.   (See examples, below.)
+;
+; When this script is sent to an "Initialized" controller, the
+;   passwords and the clock will automatically be set by the
+;   Programmer.
+;
+; Define User Macro Names
+Patch_Dump=0000
+Time=0009
+
+; Define Control Macro Names
+Rpt_Normal=6100
+Rpt_KeyNoTO=6101
+Rpt_Off=6102
+Rpt_ForceID=6103
+Rpt_ResetTO=6104
+DTMF_Mute=6105
+DTMF_Pass=6106
+Patch_On=6107
+Patch_Off=6108
+Patch_Calls=6109
+Resp_On=6120
+Resp_Off=6121
+Test_CW=6122
+Test_Page=6123
+Test_DTMF=6124
+
+; Define Misc Macro Names
+Patch_AccessTrig=8000
+Patch_DumpTrig=8001
+
+; Note: Master Password setting handled by Programmer
+;   Don't add 99 93 MPW * here!
+
+; Note: Control Op Password setting handled by Programmer
+;   Don't add MPW 92 CPW * here!
+
+; Add Control Op Privilege Level commands here.
+
+; TX1 Normal Identifier, CW, Audio Mixed
+;   Review with MPW 34 31 *
+; TX1/Normal - Delay,W0ABC/R
+MPW 31 31 9981 9900 54 "W0ABC/R" * 
+
+; TX1 Init Identifier, Speech
+;   Review with MPW 34 30 *
+; TX1/Init - Delay, Speak "W0ABC Repeater"
+MPW 31 30 9981 9960 0000 0565 0595 0001 0046 0064 0421 * 
+
+; TX1 Identifier Interval
+MPW 51 95 *                 ; ID Interval - 9.5 minutes
+
+; TX2 Normal and Initial Identifier, Off
+MPW 31 33 *                 ; No message
+MPW 31 34 *                 ; No message
+
+; CW Tone Frequency 1250Hz
+MPW 06 00 0800 *
+
+; CW Speed Select
+MPW 12 6 *                  ; Normal 20 wpm
+MPW 13 1 *                  ; Slow 7 wpm
+
+; Dropout/Tail Message
+MPW 31 13 *                 ; No Dropout Message
+MPW 30 40 *                 ; 4.0 Second Tail
+
+; Repeater
+MPW 57 00 1 *               ; Repeater mode 1
+MPW 40 030 *                ; Repeater Timeout 3.0 minutes
+
+; Link Configuration, All not listed default to On
+MPW 63 84 0 *               ; Rx1-Tx2 Off
+MPW 63 82 0 *               ; Rx2-Tx1 Off
+MPW 63 85 0 *               ; Rx2-Tx2 Off
+MPW 63 83 0 *               ; Rx3-Tx1 Off
+MPW 63 86 0 *               ; Rx3-Tx2 Off
+
+; Courtesy Message/Time
+;    Review with MPW 34 10 *
+MPW 31 10 9910 54 57 050004 * ; Add unique beep sequence
+MPW 32 05 *                 ; .5 Sec Delay
+
+; Set DTMF Decoder Parameters
+MPW 57 06 1 *               ; DTMF Decoder Access Mode - Carrier
+MPW 96 5 *                  ; DTMF Mute Delay .5 Seconds
+MPW 89 3 0 1 2 *            ; DTMF Select Priority:
+                            ; Rx3,PH,Rx1, No Rx2
+
+; Beep Tone Frequencies - the default beep freqs are different
+;   than the  defaults in the 5K.  Set the first three to what
+;   the 5K defaults are. This way the repeater will sound the same
+;   after a 7K upgrade.
+; NOTE: don't skip these lines if you need them.
+$SKIP
+MPW 06 01 2000 *            ; Beep 1 = 500 Hz
+MPW 06 02 1428 *            ; Beep 2 = 700 Hz
+MPW 06 03 1111 *            ; Beep 3 = 900 Hz
+$ENDSKIP
+
+; Define Autopatch Parameters
+;   Note: Autopatch Password settings handled by Programmer
+;     Don't add MPW 23 APW * here!
+MPW 60 27 *                 ; Call Types: Local, 800 and Accepted
+MPW 61 3 *                  ; DTMF Dialing Mode
+MPW 65 060 *                ; Timeout Timer 6.0 Minutes
+
+; Patch Timeout Warning Message
+;   Review with MPW 34 41 *
+MPW 31 41 9910 76 11 17 21 17 11 * 
+
+; Patch Dial Msg - 4 spaced beeps
+;   Review with MPW 34 40 *
+MPW 31 40 9910 58 99 57 100010 58 40 57 100010 58 40 
+  57 100010 58 40 57 100010 *
+
+; Patch Access Triggered Macro
+;   Note: don't skip the following line if you need one.
+$SKIP
+MPW 26 12 Patch_AccessTrig*
+$ENDSKIP
+
+; Patch Dump Triggered Macro
+MPW 26 13 Patch_DumpTrig*
+
+; Landline Control Configuration
+;   CAUTION: it answers on the first ring for control
+MPW 64 3 00 03 *            ; Mode 3, Ring Delay=0, Ringout Limit=3
+
+; Accepted Number Table Settings
+$WARMINIT
+MPW 68 *                    ; Erase any entries in the table
+$ENDWARMINIT
+;   Add new table entries here
+
+; Rejected Number Table Settings
+$WARMINIT
+MPW 67 *                    ; Erase any entries in the table
+$ENDWARMINIT
+;   Add new table entries here
+
+; Patch Access Macro
+;   NOTE: Uncomment the Patch Access Macro if you need one
+$SKIP
+$WARMINIT
+MPW 21 Patch_AccessTrig *               ; Erase if already exists
+$ENDWARMINIT
+;   Add macro definition here
+$ENDSKIP
+
+; Patch Dump Macro
+; Speak "delay (pause) Call Complete at $12HOUR $AMPM 
+;                               on $DOW $MONTH $DAY"
+$WARMINIT
+MPW 21 Patch_DumpTrig *               ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Patch_DumpTrig MPW 15 9960 0000 0377 0067 0088 0039 9820 
+  9821 0358 9826 9829 9828 *
+
+; User Macros
+; Dump Patch
+$WARMINIT
+MPW 21 Patch_Dump *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Patch_Dump MPW 83 *       ; Dump Patch
+
+; Time of day
+; Speak: Delay, $DOW $MONTH $DAY at $12HOUR $AMPM
+$WARMINIT
+MPW 21 Time *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Time MPW 15 9960 0000 9826 9829 9828 0039 9820 9821 *
+
+; Control Operator Macros
+; Repeater Control: Normal
+$WARMINIT
+MPW 21 Rpt_Normal *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Rpt_Normal MPW 63 00 1 *  ; Tx1 Enable
+MPW 29 Rpt_Normal 63 41 0 *  ; Tx1 Untimed Unkey
+;                            (if 6101 entered first)
+
+; Repeater Control: Normal, Key Tx1 with no timeout
+$WARMINIT
+MPW 21 Rpt_KeyNoTO *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Rpt_KeyNoTO MPW 63 00 1 *  ; Tx1 Enable
+MPW 29 Rpt_KeyNoTO MPW 63 41 1 *  ; Tx1 Untimed Key
+
+; Repeater Control: Disable Repeater
+$WARMINIT
+MPW 21 Rpt_Off *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Rpt_Off MPW 63 41 0 *  ; Tx1 Untimed Unkey
+MPW 29 Rpt_Off MPW 63 00 0 *  ; Tx1 Disable
+
+; Force Initial ID, Tx1
+$WARMINIT
+MPW 21 Rpt_ForceID *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Rpt_ForceID MPW 55 *       ; Send CW Initial ID
+
+; Reset Repeater Timeout Timer
+$WARMINIT
+MPW 21 Rpt_ResetTO *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Rpt_ResetTO MPW 10 *       ; Reset Timeout Timer
+
+; DTMF Mute On, Mute tones
+$WARMINIT
+MPW 21 DTMF_Mute *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 DTMF_Mute MPW 63 50 1 *  ; Repeater DTMF Mute Enable
+
+; DTMF Mute Off, Pass tones
+$WARMINIT
+MPW 21 DTMF_Pass *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 DTMF_Pass MPW 63 50 0 *  ; Repeater DTMF Mute Disable
+
+; Patch On
+$WARMINIT
+MPW 21 Patch_On *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Patch_On MPW 60 27 *    ; Call types Local, 800, and Accepted
+
+; Patch Off
+$WARMINIT
+MPW 21 Patch_Off *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Patch_Off MPW 60 *       ; No call types accepted
+
+; Report Count of calls
+$WARMINIT
+MPW 21 Patch_Calls *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Patch_Calls MPW 86 *       ; Autopatch Send Count in CW
+
+; Macro Command Responses On
+$WARMINIT
+MPW 21 Resp_On *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Resp_On MPW 63 02 1 *
+
+; Macro Command Responses Off
+$WARMINIT
+MPW 21 Resp_Off *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Resp_Off MPW 63 02 0 *
+MPW 29 Resp_Off MPW 15 9960 0000 0290 0355 * ; Say "Maintain off"
+
+; Send CW Test Tones, Set 2kHz Deviation
+;   Send CW 0 thru 9
+$WARMINIT
+MPW 21 Test_CW *
+$ENDWARMINIT
+MPW 20 Test_CW MPW 15 9900 "0123456789" *
+
+; Paging Tone Test 1084Hz, 8 Seconds, Set 3kHz Deviation
+$WARMINIT
+MPW 21 Test_Page *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Test_Page MPW 15 9920 0952 80 *
+
+; DTMF Tone Test, Digit 5, 10 Seconds, Set 3kHz Deviation
+$WARMINIT
+MPW 21 Test_DTMF *              ; Erase if already exists
+$ENDWARMINIT
+MPW 20 Test_DTMF MPW 15 9950 5199 05 *
+
+; End of script
+
+
+
+
+

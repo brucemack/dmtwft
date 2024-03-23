@@ -1,0 +1,19 @@
+BODY {
+    font-family: sans-serif;
+}
+
+LEGEND {
+    font-weight: bold;
+}
+
+FORM { 
+    margin-bottom: 0; 
+}
+
+.intro {
+    color: #016565;
+}
+
+.disclaimer {
+    font-style: italic;
+}

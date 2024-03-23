@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="assets/index.css">
+    </head>
+    <body>
+        <img src="assets/logo.PNG" width="250"/>
+        <p class="intro">The DTMF Robot generates DTMF command sequences needed to program an S-SCOM 5K/6K/7K repeater controller,
+or in other situations where you need to maintain long/complex DTMF commands. Simply upload 
+your existing S-COM Programmer command script, press GENERATE, download the audio file (in .WAV format), and play the file into your 
+repeater controller.</p>
+        <p class="disclaimer">This tool is provided for amateur radio use and <ul>is not an S-COM product</ul>.  Questions and/or 
+suggestions should be sent to the author (KC1FSZ).  Please don't bother S-COM with support requests!</p>
+        <fieldset>
+            <legend>Step 1: Select A File</legend>
+            <form id="form_1a" method="post" action="robot-form-1a" enctype="multipart/form-data">
+                <label for="upload_file">Upload Your Own File:</label>
+                <input id="upload_file" name="upload_file" type="file" title=" "/>
+            </form>
+            <p>OR</p>
+            <form id="form_1b" method="post" action="robot-form-1b">
+                <label for="url_file">Pull a File From The Web:</label>
+                <input id="url_file" name="url_file" type="text" placeholder="http://yourfile_url" 
+                    value="{{ url_file }}" size="60"/>
+            </form>
+        </fieldset>
+        <br/>
+        <form id="form_2" method="post" action="robot-form-2">
+            <fieldset>
+                <legend>Step 2: Generate DTMF Stream</legend>
+                <label for="mpw">Master Password</label>
+                <input type="text" value="{{mpw}}" id="mpw" name="mpw" size="6"/>
+                <label for="cpw">Control Password</label>
+                <input type="text" value="{{cpw}}" id="cpw" name="cpw" size="6"/>
+                <label for="cpw">Autopatch Password</label>
+                <input type="text" value="{{apw}}" id="apw" name="apw" size="6"/>
+                <label for="cpw">Remote Base Password</label>
+                <input type="text" value="{{rbpw}}" id="rbpw" name="rbpw" size="6"/>
+                <br/>
+                <label for="warminit">Warm?</label>
+                <input type="checkbox" {{ "checked" if warminit == "on" }} id="warminit" name="warminit"/>
+                <label for="tone_dur">Tone (ms)</label>
+                <input type="text" value="{{tone_dur}}" id="tone_dur" name="tone_dur" size="6"/>
+                <label for="gap_dur">Pause (ms)</label>
+                <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="6"/>
+                <br/>
+                <input type="submit" value="Generate"/>
+            </fieldset>
+        </form>
+        <br/>
+        <form>
+            <fieldset>
+                <legend>Step 3: Download Audio</legend>
+                <audio controls>
+                    <source src="robot/sound" type="audio/wav">
+                  Your browser does not support the audio element.
+                </audio>            
+                <br/>    
+                <a href="robot/sound">Download Link</a>
+            </fieldset>
+        </form>
+        <br/>
+        {% if message != "" %}        
+        <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">
+            <p style="color: red">{{ message }}</p>            
+        </div>
+        {% endif %}        
+        {% if contents != "" %}        
+        <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">
+            <legend>File Preview</legend>
+<pre>
+{{ contents }}    
+</pre>
+        </div>
+        {% endif %}        
+    </body>
+    <script src="assets/index.js"></script>        
+</html>

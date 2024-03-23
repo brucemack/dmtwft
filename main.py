@@ -16,94 +16,178 @@
 *
 * NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
 """
-import math
-import scipy.io.wavfile as wavfile
-import numpy as np
+import time    
+from typing import Union, Annotated, Optional
+import starlette.status as status
+from fastapi import FastAPI, Request, Response, UploadFile, Form, Cookie, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+import requests
 
-import utils.parse as parse
-import utils.DTMF as DTMF
-from utils.Token import Token
+app = FastAPI()
+app.mount("/assets", StaticFiles(directory="www/assets"), name="static")
+templates = Jinja2Templates(directory="www/templates")
 
-def gen_audio_seq(symbols):
-    result = np.array([])
-    for symbol in symbols:
-        _, data = wavfile.read("sounds/" + symbol + ".wav")
-        result = np.append(result, data)
-    return result
+# Where the session state is held
+sessions = dict()
+cookie_counter = 0
 
-def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init):
+def get_default_session():
+    s = dict()
+    s["url_file"] = ""
+    s["contents"] = None
+    s["mpw"] = "99"
+    s["cpw"] = "99"
+    s["apw"] = "99"
+    s["rbpw"] = "99"
+    s["warminit"] = "on"
+    s["tone_dur"] = "75"
+    s["gap_dur"] = "75"
+    s["sound"] = None
+    s["message"] = None
+    return s
 
-    local_constants = dict(constants)
+def get_session(session_key):
 
-    warm_state = False
-    cold_state = False
-    skip_state = False
-    dtmf_symbols = ""
+    global cookie_counter
 
-    for tokens in script:  
-        # Look for special commands
-        if tokens[0].text == "$WARMINIT":
-            warm_state = True
-        elif tokens[0].text == "$ENDWARMINIT":
-            warm_state = False
-        elif tokens[0].text == "$SKIP":
-            skip_state = True
-        elif tokens[0].text == "$ENDSKIP":
-            skip_state = False
-        elif tokens[0].text == "$PLAY":
-            pass
-        # Look for assignments
-        elif tokens[1].text == "=" and len(tokens) >= 3:
-            # Here we pull off the first two tokens and everything else is the value
-            # of the token.
-            local_constants[tokens[0].text] = tokens[2:]
-        # Everything else is a normal command line
-        else:
-            if skip_state:
-                continue
-            # Resolve all named constants
-            expanded_tokens = parse.expand_tokens(local_constants, tokens)
-            # Convert to DTMF
-            for token in expanded_tokens:
-                for s in parse.convert_token_to_dtmf_symbols(token):
-                    dtmf_symbols = dtmf_symbols + s
+    if session_key is None:
+        session_key = "session" + str(cookie_counter)
+        cookie_counter = cookie_counter + 1
+
+    if not session_key in sessions:
+        sessions[session_key] = get_default_session()
+        sessions[session_key]["key"] = session_key
+        sessions[session_key]["created"] = int(time.time())
+        # TODO: LRU PRUNE!
+
+    return sessions[session_key]
+
+def load_url(session):
+    if session["url_file"]:
+        # Load the URL
+        try:
+            response = requests.get(session["url_file"])
+            if response.status_code == 200:
+                contents = response.content.decode("utf8")
+                session["contents"] = contents
+            else:
+                session["contents"] = None
+                session["message"] = "URL not found"
+        except Exception as ex:
+            session["contents"] = None
+            session["message"] = "Unable to load URL"
     
-    return dtmf_symbols
+@app.get("/robot", response_class=HTMLResponse)
+async def robot_render(request: Request, 
+                       demo: Union[str, None] = None,
+                       session_key: Union[str, None] = Cookie(None)):
+    
+    session = get_session(session_key)
 
-out_fn = "d:/demo.wav"
+    if session["contents"] == None:
+        contents = ""
+    else:
+        contents = session["contents"]
 
-#samplerate = 44100
-sample_rate = 8000
-mag = 32767.0 / 2.0
+    if session["message"] == None:
+        message = ""
+    else:
+        message = session["message"]
 
-script = []
+    # Stage data for JINJA2 template
+    context = { 
+        "url_file": session["url_file"],
+        "contents": contents,
+        "mpw": session["mpw"],
+        "cpw": session["cpw"],
+        "apw": session["apw"],
+        "rbpw": session["rbpw"],
+        "tone_dur": session["tone_dur"],
+        "gap_dur": session["gap_dur"],
+        "warminit": session["warminit"],
+        "message": message
+    }
 
-# Add special constants
-constants = dict()
-constants["MPW"] = [ Token("99") ]
-constants["CPW"] = [ Token("98") ]
-constants["APW"] = [ Token("98") ]
-constants["RBPW"] = [ Token("98") ]
+    # These are one-time messages
+    session["message"] = None
 
-# Read a SCOM Programmer file
-with open('tests/scom-demo-1.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-        tokens = parse.tokenize_line(line.strip())
-        if len(tokens) > 0:
-            script.append(tokens)
-
-try:
-    # Convert the script to DTMF symbols
-    dtmf_symbols = convert_script_to_dtmf_symbols(constants, script, True, False)
-    # Convert DTMF symbols to PCM tone data
-    wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, 0.075, mag / 2)
-except Exception as ex:
-    print("Program execution failure", ex)
-
-print("Result: ", dtmf_symbols)
-
-# Dump PCM to .WAV
-wavfile.write(out_fn, sample_rate, wav_data.astype(np.int16))
+    t = templates.TemplateResponse(request=request, name="index.html", context=context)
+    t.set_cookie(key="session_key", value=session["key"])
+    return t
 
 
+@app.post("/robot-form-1a", response_class=HTMLResponse)
+async def robot_post_1a(upload_file: UploadFile,
+                     session_key: Union[str, None] = Cookie(None)):  
+
+    session = get_session(session_key)
+    session["contents"] = None
+    contents = await upload_file.read()
+    session["contents"] = contents.decode("utf8")
+    # Always clear sound when the session is changed
+    session["sound"] = None
+   
+    # Go back to the normal GET
+    return RedirectResponse(
+        '/robot', 
+        status_code=status.HTTP_302_FOUND)    
+
+@app.post("/robot-form-1b", response_class=HTMLResponse)
+async def robot_post_1b(url_file: Annotated[str, Form()] = "",
+                     session_key: Union[str, None] = Cookie(None)):  
+
+    session = get_session(session_key)
+    session["url_file"] = url_file
+    session["contents"] = None
+    # Always clear sound when the session is changed
+    session["sound"] = None    
+
+    load_url(session)
+
+    # Go back to the normal GET
+    return RedirectResponse(
+        '/robot', 
+        status_code=status.HTTP_302_FOUND)    
+
+@app.post("/robot-form-2", response_class=HTMLResponse)
+async def robot_post_2(mpw: Annotated[str, Form()], 
+                       cpw: Annotated[str, Form()],
+                       apw: Annotated[str, Form()],
+                       rbpw: Annotated[str, Form()],
+                       tone_dur: Annotated[str, Form()],
+                       gap_dur: Annotated[str, Form()],
+                       # Watch out, checkboxes don't get sent when unchecked
+                       warminit: Annotated[str, Form()] = "off",
+                       session_key: Union[str, None] = Cookie(None)):                        
+    
+    # Update session
+    session = get_session(session_key)
+    session["mpw"] = mpw
+    session["cpw"] = cpw
+    session["apw"] = apw
+    session["rbpw"] = rbpw
+    session["tone_dur"] = tone_dur
+    session["gap_dur"] = gap_dur
+    session["warminit"] = warminit
+    # Always clear sound when the session is changed
+    session["sound"] = None
+
+    # Re-generate the sound
+
+    # Go back to the normal GET
+    return RedirectResponse(
+        '/robot', 
+        status_code=status.HTTP_302_FOUND)    
+
+@app.get("/robot/sound", response_class=Response)
+async def robot_sound(session_key: Union[str, None] = Cookie(None)):
+    session = get_session(session_key)
+    if session["sound"] == None:
+         raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        # Load file into bytes
+        with open("./demo.wav", 'rb') as f:
+            sound_bytes = f.read()
+        return Response(content=sound_bytes, media_type="audio/wav")    
