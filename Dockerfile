@@ -1,4 +1,6 @@
-FROM python:3.12.2-bookworm
+FROM python:3.12
+RUN apt-get -y update
+RUN apt-get -y install cmake
 
 # Setup virtual environment
 ENV VIRTUAL_ENV=/opt/venv
@@ -8,6 +10,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt .
 # The pip command is controlled by PATH (so uses venv)
 RUN pip install --upgrade pip
+run pip install --upgrade setuptools wheel
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY main.py .
