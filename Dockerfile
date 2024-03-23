@@ -1,4 +1,4 @@
-FROM python:3.11.2-slim-bullseye
+FROM python:3.12.2-bookworm
 
 # Setup virtual environment
 ENV VIRTUAL_ENV=/opt/venv
