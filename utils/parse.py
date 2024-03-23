@@ -185,7 +185,7 @@ def convert_token_to_dtmf_symbols(token):
             if c in alpha_codes:
                 eff_token = eff_token + alpha_codes[c]
             else:
-                raise Exception("Unable to convert quoted symbol to DTMF: " + c + " at line " + token.row)
+                raise Exception("Unable to convert quoted symbol to DTMF: " + c + " at line " + str(token.row))
     else:
         eff_token = token.text
 
@@ -193,7 +193,7 @@ def convert_token_to_dtmf_symbols(token):
     # is a valid DTMF symbol
     for c in eff_token:
         if not is_valid_dtmf_symbol(c):
-            raise Exception("Invalid: " + c + "at line " + token.row)
+            raise Exception("Token \"" + token.text + "\" at line " + str(token.row) + " contains an invalid DTMF symbol: \"" + c + "\"")
         result.append(c)
 
     return result

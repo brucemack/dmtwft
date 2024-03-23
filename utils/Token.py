@@ -26,9 +26,9 @@ class Token:
 
     def __repr__(self):
         if self.is_quoted:
-            return "Token(\"" + self.text + "\")"
+            return "Token(\"" + self.text + "\" row:" + str(self.row) + ")"
         else:
-            return "Token(" + self.text + ")"
+            return "Token(" + self.text + " row:" + str(self.row) + ")"
 
     def __eq__(self, other):
         return self.text == other.text and \

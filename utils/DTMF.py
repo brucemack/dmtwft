@@ -38,10 +38,11 @@ def gen_silence(sample_freq, dur_seconds):
 def gen_dtmf(button, sample_freq, dur_seconds, mag):
     return gen_two_tones(dtmf[button][0], dtmf[button][1], sample_freq, dur_seconds, mag)
 
-def gen_dtmf_seq(buttons, sample_freq, symbol_dur_seconds, mag):
+def gen_dtmf_seq(buttons, sample_freq, tone_dur_seconds, gap_dur_seconds, mag):
     result = np.array([])
     for button in buttons:
-        result = np.append(result, gen_dtmf(button, sample_freq, symbol_dur_seconds, mag))
+        # Tone
+        result = np.append(result, gen_dtmf(button, sample_freq, tone_dur_seconds, mag))
         # Silence
-        result = np.append(result, gen_silence(sample_freq, symbol_dur_seconds))
+        result = np.append(result, gen_silence(sample_freq, gap_dur_seconds))
     return result

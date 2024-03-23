@@ -23,6 +23,7 @@ import numpy as np
 import utils.parse as parse
 import utils.DTMF as DTMF
 from utils.Token import Token
+import utils.convert as convert 
 
 def gen_audio_seq(symbols):
     result = np.array([])
@@ -30,45 +31,6 @@ def gen_audio_seq(symbols):
         _, data = wavfile.read("sounds/" + symbol + ".wav")
         result = np.append(result, data)
     return result
-
-def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init):
-
-    local_constants = dict(constants)
-
-    warm_state = False
-    cold_state = False
-    skip_state = False
-    dtmf_symbols = ""
-
-    for tokens in script:  
-        # Look for special commands
-        if tokens[0].text == "$WARMINIT":
-            warm_state = True
-        elif tokens[0].text == "$ENDWARMINIT":
-            warm_state = False
-        elif tokens[0].text == "$SKIP":
-            skip_state = True
-        elif tokens[0].text == "$ENDSKIP":
-            skip_state = False
-        elif tokens[0].text == "$PLAY":
-            pass
-        # Look for assignments
-        elif tokens[1].text == "=" and len(tokens) >= 3:
-            # Here we pull off the first two tokens and everything else is the value
-            # of the token.
-            local_constants[tokens[0].text] = tokens[2:]
-        # Everything else is a normal command line
-        else:
-            if skip_state:
-                continue
-            # Resolve all named constants
-            expanded_tokens = parse.expand_tokens(local_constants, tokens)
-            # Convert to DTMF
-            for token in expanded_tokens:
-                for s in parse.convert_token_to_dtmf_symbols(token):
-                    dtmf_symbols = dtmf_symbols + s
-    
-    return dtmf_symbols
 
 out_fn = "d:/demo.wav"
 
@@ -85,9 +47,6 @@ constants["CPW"] = [ Token("98") ]
 constants["APW"] = [ Token("98") ]
 constants["RBPW"] = [ Token("98") ]
 
-
-
-
 # Read a SCOM Programmer file
 with open('tests/sample-from-scom-resources.txt', 'r') as f:
     lines = f.readlines()
@@ -98,7 +57,7 @@ with open('tests/sample-from-scom-resources.txt', 'r') as f:
 
 try:
     # Convert the script to DTMF symbols
-    dtmf_symbols = convert_script_to_dtmf_symbols(constants, script, True, False)
+    dtmf_symbols = convert.convert_script_to_dtmf_symbols(constants, script, True, False)
     # Convert DTMF symbols to PCM tone data
     wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, 0.075, mag / 2)
 except Exception as ex:
@@ -108,5 +67,3 @@ print("Result: ", dtmf_symbols)
 
 # Dump PCM to .WAV
 wavfile.write(out_fn, sample_rate, wav_data.astype(np.int16))
-
-

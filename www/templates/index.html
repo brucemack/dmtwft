@@ -1,15 +1,20 @@
 <html>
     <head>
         <link rel="stylesheet" href="assets/index.css">
+        <script>
+function show_spinner() {
+    document.getElementById("spinner").style.display = "block"
+}
+        </script>
     </head>
     <body>
-        <img src="assets/logo.PNG" width="250"/>
+        <img src="assets/logo.png" width="250"/>
         <p class="intro">The DTMF Robot generates DTMF command sequences needed to program an S-SCOM 5K/6K/7K repeater controller,
 or in other situations where you need to maintain long/complex DTMF commands. Simply upload 
 your existing S-COM Programmer command script, press GENERATE, download the audio file (in .WAV format), and play the file into your 
 repeater controller.</p>
-        <p class="disclaimer">This tool is provided for amateur radio use and <ul>is not an S-COM product</ul>.  Questions and/or 
-suggestions should be sent to the author (KC1FSZ).  Please don't bother S-COM with support requests!</p>
+        <p class="disclaimer">This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
+suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db/kc1fsz">good in QRZ</a>).  Please don't bother S-COM with support requests!</p>
         <fieldset>
             <legend>Step 1: Select A File</legend>
             <form id="form_1a" method="post" action="robot-form-1a" enctype="multipart/form-data">
@@ -43,19 +48,24 @@ suggestions should be sent to the author (KC1FSZ).  Please don't bother S-COM wi
                 <label for="gap_dur">Pause (ms)</label>
                 <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="6"/>
                 <br/>
-                <input type="submit" value="Generate"/>
+                <input type="submit" value="Generate" onclick="show_spinner()"/>
             </fieldset>
         </form>
         <br/>
         <form>
             <fieldset>
                 <legend>Step 3: Download Audio</legend>
+                <div id="spinner" style="display: none">
+                    <h2>Loading ...</h2>
+                </div>
+                {% if sound == "good" %}        
                 <audio controls>
                     <source src="robot/sound" type="audio/wav">
                   Your browser does not support the audio element.
                 </audio>            
                 <br/>    
                 <a href="robot/sound">Download Link</a>
+                {% endif %}        
             </fieldset>
         </form>
         <br/>
@@ -63,6 +73,7 @@ suggestions should be sent to the author (KC1FSZ).  Please don't bother S-COM wi
         <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">
             <p style="color: red">{{ message }}</p>            
         </div>
+        <br/>
         {% endif %}        
         {% if contents != "" %}        
         <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">

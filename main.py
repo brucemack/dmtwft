@@ -17,13 +17,26 @@
 * NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
 """
 import time    
+import math
+import os
 from typing import Union, Annotated, Optional
+import tempfile
+
+import scipy.io.wavfile as wavfile
+import numpy as np
+
 import starlette.status as status
 from fastapi import FastAPI, Request, Response, UploadFile, Form, Cookie, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import requests
+
+# Other parts of this project
+import utils.parse as parse
+import utils.DTMF as DTMF
+from utils.Token import Token
+import utils.convert as convert 
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="www/assets"), name="static")
@@ -78,7 +91,50 @@ def load_url(session):
         except Exception as ex:
             session["contents"] = None
             session["message"] = "Unable to load URL"
-    
+
+def generate_dtmf(session: dict):
+
+    sample_rate = 8000
+    mag = 32767.0 / 2.0
+    script = []
+
+    # Add special constants
+    constants = dict()
+    constants["MPW"] = [ Token(session["mpw"]) ]
+    constants["CPW"] = [ Token(session["cpw"]) ]
+    constants["APW"] = [ Token(session["apw"]) ]
+    constants["RBPW"] = [ Token(session["rbpw"]) ]
+    # Get parameters
+    warm_init = session["warminit"] == "on"
+    tone_dur = float(session["tone_dur"]) / 1000
+    gap_dur = float(session["gap_dur"]) / 1000
+
+    row = 1
+    for line in session["contents"].splitlines():
+        tokens = parse.tokenize_line(line.strip(), row)
+        if len(tokens) > 0:
+            script.append(tokens)
+        row = row + 1
+
+    try:
+        # Convert the script to DTMF symbols
+        dtmf_symbols = convert.convert_script_to_dtmf_symbols(constants, script, warm_init, False)
+        # Convert DTMF symbols to PCM tone data
+        wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, tone_dur, gap_dur, mag / 2)
+    except Exception as ex:
+        print("Exception", ex)
+        session["message"] = "Unable to process file: " + str(ex)
+        return       
+
+    # Dump PCM to .WAV
+    f = tempfile.NamedTemporaryFile(delete=False)
+    wavfile.write(f.name, sample_rate, wav_data.astype(np.int16))
+    # Load temp file into bytes
+    with open(f.name, 'rb') as f:
+        session["sound"] = f.read()
+    # Erase temp file
+    os.unlink(f.name)
+
 @app.get("/robot", response_class=HTMLResponse)
 async def robot_render(request: Request, 
                        demo: Union[str, None] = None,
@@ -96,6 +152,12 @@ async def robot_render(request: Request,
     else:
         message = session["message"]
 
+    if session["sound"] == None:
+        sound = "none"
+    else:
+        sound = "good"
+
+
     # Stage data for JINJA2 template
     context = { 
         "url_file": session["url_file"],
@@ -107,7 +169,8 @@ async def robot_render(request: Request,
         "tone_dur": session["tone_dur"],
         "gap_dur": session["gap_dur"],
         "warminit": session["warminit"],
-        "message": message
+        "message": message,
+        "sound": sound
     }
 
     # These are one-time messages
@@ -175,6 +238,7 @@ async def robot_post_2(mpw: Annotated[str, Form()],
     session["sound"] = None
 
     # Re-generate the sound
+    generate_dtmf(session)
 
     # Go back to the normal GET
     return RedirectResponse(
@@ -187,7 +251,4 @@ async def robot_sound(session_key: Union[str, None] = Cookie(None)):
     if session["sound"] == None:
          raise HTTPException(status_code=404, detail="Item not found")
     else:
-        # Load file into bytes
-        with open("./demo.wav", 'rb') as f:
-            sound_bytes = f.read()
-        return Response(content=sound_bytes, media_type="audio/wav")    
+        return Response(content=session["sound"], media_type="audio/wav")    
