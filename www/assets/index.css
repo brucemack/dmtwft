@@ -17,3 +17,15 @@ FORM {
 .disclaimer {
     font-style: italic;
 }
+
+.generate-button {
+    color: white;
+    background-color: #016565;
+}
+
+.section-box {
+    border-style: solid; 
+    border-color: #888888; 
+    border-width: 2px; 
+    padding: 5px
+}

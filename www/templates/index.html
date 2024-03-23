@@ -10,7 +10,7 @@ function show_spinner() {
     <body>
         <img src="assets/logo.png" width="250"/>
         <p class="intro">The DTMF Robot generates DTMF command sequences needed to program an S-SCOM 5K/6K/7K repeater controller,
-or in other situations where you need to maintain long/complex DTMF commands. Simply upload 
+or for other situations where you need to maintain long/complex DTMF commands. Simply upload 
 your existing S-COM Programmer command script, press GENERATE, download the audio file (in .WAV format), and play the file into your 
 repeater controller.</p>
         <p class="disclaimer">This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
@@ -21,11 +21,14 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
                 <label for="upload_file">Upload Your Own File:</label>
                 <input id="upload_file" name="upload_file" type="file" title=" "/>
             </form>
-            <p>OR</p>
+            <p><b>OR</b></p>
             <form id="form_1b" method="post" action="robot-form-1b">
-                <label for="url_file">Pull a File From The Web:</label>
+                <label for="url_file">Pull a File From the Web:</label>
                 <input id="url_file" name="url_file" type="text" placeholder="http://yourfile_url" 
                     value="{{ url_file }}" size="60"/>
+                <br/>
+                <i>(This option can be be used to generate DTMF from a repeater script stored in GITHUB or some other 
+version code repository.)</i>
             </form>
         </fieldset>
         <br/>
@@ -48,7 +51,7 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
                 <label for="gap_dur">Pause (ms)</label>
                 <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="6"/>
                 <br/>
-                <input type="submit" value="Generate" onclick="show_spinner()"/>
+                <input class="generate-button" type="submit" value="Generate" onclick="show_spinner()"/>
             </fieldset>
         </form>
         <br/>
@@ -56,7 +59,7 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
             <fieldset>
                 <legend>Step 3: Download Audio</legend>
                 <div id="spinner" style="display: none">
-                    <h2>Loading ...</h2>
+                    <h2>Generating ...</h2>
                 </div>
                 {% if sound == "good" %}        
                 <audio controls>
@@ -70,19 +73,17 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
         </form>
         <br/>
         {% if message != "" %}        
-        <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">
+        <div class="section-box">
             <p style="color: red">{{ message }}</p>            
         </div>
         <br/>
         {% endif %}        
-        {% if contents != "" %}        
-        <div style="border-style: solid; border-color: #888888; border-width: 2px; padding: 5px">
+        <div  class="section-box">
             <legend>File Preview</legend>
 <pre>
 {{ contents }}    
 </pre>
         </div>
-        {% endif %}        
     </body>
     <script src="assets/index.js"></script>        
 </html>
