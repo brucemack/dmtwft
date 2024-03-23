@@ -31,7 +31,6 @@ def convert_script_to_dtmf_symbols(constants, script, in_warm_init, in_cold_init
     dtmf_symbols = ""
 
     for tokens in script:  
-        print(tokens)
         # Look for special commands
         if tokens[0].text == "$WARMINIT":
             warm_state = True

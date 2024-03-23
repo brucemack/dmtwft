@@ -142,6 +142,12 @@ async def robot_render(request: Request,
     
     session = get_session(session_key)
 
+    # Look for the case where a demo URL was provided that pre-loads some
+    # contents
+    if demo:
+        session["url_file"] = demo
+        load_url(session)
+
     if session["contents"] == None:
         contents = ""
     else:
@@ -156,7 +162,6 @@ async def robot_render(request: Request,
         sound = "none"
     else:
         sound = "good"
-
 
     # Stage data for JINJA2 template
     context = { 
