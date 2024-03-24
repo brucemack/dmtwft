@@ -1,0 +1,59 @@
+; S-COM 5K controller for W1DX
+; Transcribed by Bruce MacKinnon KC1FSZ on 24-March-2024
+
+; Initial callsign
+MPW 53 40 40 40 "W1DX" 40 40 *
+; Normal callsign 
+MPW 52 40 40 40 "W1DX" 40 40 *
+; Lock control operator password from control operator use
+MPW 94 92 1 *
+; Lock master password from control operator use
+MPW 94 93 1 *
+; 600 Hz CW tone
+MPW 06 16 67 *
+; ID interval (10 mins)
+MPW 51 99 * 
+; Carrier access 
+MPW 57 00 1 *
+; Carrier + PL access 
+MPW 57 00 3 *
+
+; ----- Macros -------
+
+; Output leads
+
+; Out #1 on
+$WARMINIT 
+MPW 21 0070 *
+$ENDWARMINIT
+MPW 20 0070 15 70 1 *
+; Out #1 off
+$WARMINIT 
+MPW 21 0071 *
+$ENDWARMINIT
+MPW 20 0071 15 71 1 *
+
+; Out #2 on
+$WARMINIT 
+MPW 21 0072 *
+$ENDWARMINIT
+MPW 20 0072 15 70 2 *
+; Out #2 off
+$WARMINIT 
+MPW 21 0073 *
+$ENDWARMINIT
+MPW 20 0073 15 71 2 *
+
+; Out #3 on
+$WARMINIT 
+MPW 21 0074 *
+$ENDWARMINIT
+MPW 20 0074 15 70 3 *
+; Out #3 off
+$WARMINIT 
+MPW 21 0075 *
+$ENDWARMINIT
+MPW 20 0075 15 71 3 *
+
+; 3-tone Courtesy beep
+MPW 31 74 84 94 *

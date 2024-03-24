@@ -25,6 +25,8 @@ import utils.DTMF as DTMF
 from utils.Token import Token
 import utils.convert as convert 
 
+in_fn = "tests/n1lma-5k.txt"
+#in_fn = "tests/w1dx-5k.txt"
 #out_fn = "d:/demo.wav"
 out_fn = "./demo.wav"
 
@@ -44,7 +46,7 @@ constants["APW"] = [ Token("98") ]
 constants["RBPW"] = [ Token("98") ]
 
 # Read a SCOM Programmer file
-with open('tests/sample-from-scom-resources.txt', 'r') as f:
+with open(in_fn, 'r') as f:
     lines = f.readlines()
     for line in lines:
         tokens = parse.tokenize_line(line.strip())

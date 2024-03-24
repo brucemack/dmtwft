@@ -1,0 +1,37 @@
+; S-COM 5K controller for N1LMA
+; Transcribed by Bruce MacKinnon KC1FSZ on 24-March-2024
+
+; CW ID (two second delay first, then call)
+MPW 52 58 99 58 99 "N1LMA" *
+; CW Speed (20 WPM)
+MPW 12 6 *
+; ID Interval (10 mins)
+MPW 51 99 *
+; Courtesy tone is deleted
+MPW 31 *
+; Timeout time (5 mins)
+MPW 40 50 *
+; Hang time (5 seconds)
+MPW 30 50 * 
+; Dropout message (4 spaces)
+MPW 34 40 40 40 40 *
+
+; ----- Macros -----
+; REP off
+$WARMINIT
+MPW 21 5000 *
+$ENDWARMINIT
+MPW 20 5000 CPW 57 00 0 * 
+; REP on
+$WARMINIT
+MPW 21 5001 *
+$ENDWARMINIT
+MPW 20 5001 CPW 57 00 3 *
+; Test tone 
+$WARMINIT
+MPW 21 0088 *
+$ENDWARMINIT
+MPW 20 0088 CPW 90 10 00 98 *
+
+; Return to normal - logic 1 off
+MPW 71 1 *
