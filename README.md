@@ -47,7 +47,7 @@ References
 S-COM
 * [The 5K Users Guide](http://www.scomcontrollers.com/downloads/5kmanualv20.pdf)
 * [Repeater Controller Article](https://www.repeater-builder.com/scom/controller-direct-programming.html)
-* Demo URL: https://sqqe3umktm.us-east-1.awsapprunner.com/robot?demo=http://www.scomcontrollers.com/downloads/sample.txt
+* Demo URL: https://xxx.us-east-1.awsapprunner.com/robot?demo=http://www.scomcontrollers.com/downloads/sample.txt
 
 Licensing 
 =========
