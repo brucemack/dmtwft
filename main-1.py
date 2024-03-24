@@ -17,26 +17,22 @@
 * NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
 """
 import math
-import scipy.io.wavfile as wavfile
-import numpy as np
+import wave
+import struct
 
 import utils.parse as parse
 import utils.DTMF as DTMF
 from utils.Token import Token
 import utils.convert as convert 
 
-def gen_audio_seq(symbols):
-    result = np.array([])
-    for symbol in symbols:
-        _, data = wavfile.read("sounds/" + symbol + ".wav")
-        result = np.append(result, data)
-    return result
-
-out_fn = "d:/demo.wav"
+#out_fn = "d:/demo.wav"
+out_fn = "./demo.wav"
 
 #samplerate = 44100
 sample_rate = 8000
 mag = 32767.0 / 2.0
+tone_dur = 0.075
+gap_dur = 0.075
 
 script = []
 
@@ -59,11 +55,16 @@ try:
     # Convert the script to DTMF symbols
     dtmf_symbols = convert.convert_script_to_dtmf_symbols(constants, script, True, False)
     # Convert DTMF symbols to PCM tone data
-    wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, 0.075, mag / 2)
+    wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, tone_dur, gap_dur, mag / 2)
 except Exception as ex:
     print("Program execution failure", ex)
 
 print("Result: ", dtmf_symbols)
 
 # Dump PCM to .WAV
-wavfile.write(out_fn, sample_rate, wav_data.astype(np.int16))
+with wave.open(out_fn, "w") as f:
+    f.setnchannels(1)
+    f.setsampwidth(2)
+    f.setframerate(sample_rate)
+    f.setnframes(len(wav_data))
+    f.writeframesraw(struct.pack("<{}h".format(len(wav_data)), *wav_data))

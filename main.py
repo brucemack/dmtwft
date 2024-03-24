@@ -21,9 +21,8 @@ import math
 import os
 from typing import Union, Annotated, Optional
 import tempfile
-
-import scipy.io.wavfile as wavfile
-import numpy as np
+import struct
+import wave
 
 import starlette.status as status
 from fastapi import FastAPI, Request, Response, UploadFile, Form, Cookie, HTTPException
@@ -127,13 +126,22 @@ def generate_dtmf(session: dict):
         return       
 
     # Dump PCM to .WAV
-    f = tempfile.NamedTemporaryFile(delete=False)
-    wavfile.write(f.name, sample_rate, wav_data.astype(np.int16))
+    out_fn = tempfile.NamedTemporaryFile(delete=False)
+
+    # TODO: IN-MEMORY FILE!
+
+    # Dump PCM to .WAV.  
+    with wave.open(out_fn, "wb") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(sample_rate)
+        f.setnframes(len(wav_data))
+        f.writeframesraw(struct.pack("<{}h".format(len(wav_data)), *wav_data))
     # Load temp file into bytes
-    with open(f.name, 'rb') as f:
+    with open(out_fn.name, "rb") as f:
         session["sound"] = f.read()
     # Erase temp file
-    os.unlink(f.name)
+    #os.unlink(out_fn.name)
 
 @app.get("/robot", response_class=HTMLResponse)
 async def robot_render(request: Request, 
