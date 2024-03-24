@@ -19,19 +19,35 @@ Build Docker image:
         docker tag dtmf-robot:latest brucemack/dtmf-robot:0.0        
         docker push brucemack/dtmf-robot:0.0      
 
-Start Docker container (from local registry)
+Start Docker container:
 
         docker run -d --name dtmf-robot --restart=unless-stopped -p 8081:8080 dtmf-robot
+        docker run -d --name dtmf-robot --restart=unless-stopped -p 8081:8080 brucemack/dtmf-robot:0.0
 
 Starting the web server:
 
         uvicorn main:app --host 0.0.0.0 --port 8081 --reload --no-use-colors
+
+Getting a token for AWS ECS (lasts for 12 hours) (see https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html)
+
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCTIDACCTID.dkr.ecr.us-east-1.amazonaws.com
+
+Tag the image:
+        
+        docker tag dtmf-robot ACCTIDACCID.dkr.ecr.us-east-1.amazonaws.com/dtmf-robot:latest
+
+Push the image:
+
+        docker push ACCTIDACCID.dkr.ecr.us-east-1.amazonaws.com/dtmf-robot:latest
+
 
 References
 ==========
 
 S-COM
 * [The 5K Users Guide](http://www.scomcontrollers.com/downloads/5kmanualv20.pdf)
+* [Repeater Controller Article](https://www.repeater-builder.com/scom/controller-direct-programming.html)
+* Demo URL: https://sqqe3umktm.us-east-1.awsapprunner.com/robot?demo=http://www.scomcontrollers.com/downloads/sample.txt
 
 Licensing 
 =========
