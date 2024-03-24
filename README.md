@@ -6,6 +6,9 @@ can be played into an S-COM 5K/6K/7K repeater controller.  This eliminates
 the need to be using modems or other old-school ways of playing the 
 required tones into the repeater.
 
+Credit to Dave Maciorowski (WA1JHK) who developed the original S-COM 
+Programming tool and defined the file format used by this tool.  
+
 Advanced Language Features
 ==========================
 
