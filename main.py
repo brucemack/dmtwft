@@ -135,6 +135,9 @@ def generate_dtmf(session: dict):
         of.seek(0)
         session["sound"] = of.read()
 
+# ===== Application Routes ====================================================
+
+# The "main" screen:
 @app.get("/robot", response_class=HTMLResponse)
 async def robot_render(request: Request, 
                        demo: Union[str, None] = None,
@@ -163,7 +166,7 @@ async def robot_render(request: Request,
     else:
         sound = "good"
 
-    # Stage data for JINJA2 template
+    # Stage data for Jinja2 template
     context = { 
         "url_file": session["url_file"],
         "contents": contents,
@@ -178,14 +181,14 @@ async def robot_render(request: Request,
         "sound": sound
     }
 
-    # These are one-time messages
+    # These are one-time messages, so clear it after it's been used
     session["message"] = None
 
     t = templates.TemplateResponse(request=request, name="index.html", context=context)
     t.set_cookie(key="session_key", value=session["key"])
     return t
 
-
+# Used when someone uploads a script file (POST)
 @app.post("/robot-form-1a", response_class=HTMLResponse)
 async def robot_post_1a(upload_file: UploadFile,
                      session_key: Union[str, None] = Cookie(None)):  
@@ -202,6 +205,8 @@ async def robot_post_1a(upload_file: UploadFile,
         '/robot', 
         status_code=status.HTTP_302_FOUND)    
 
+# Used when someone changes the URL. This forces a re-load of the content
+# by doing an HTTP GET from the specified location.
 @app.post("/robot-form-1b", response_class=HTMLResponse)
 async def robot_post_1b(url_file: Annotated[str, Form()] = "",
                      session_key: Union[str, None] = Cookie(None)):  
@@ -219,6 +224,7 @@ async def robot_post_1b(url_file: Annotated[str, Form()] = "",
         '/robot', 
         status_code=status.HTTP_302_FOUND)    
 
+# This is used when someone presses the Generate button
 @app.post("/robot-form-2", response_class=HTMLResponse)
 async def robot_post_2(mpw: Annotated[str, Form()], 
                        cpw: Annotated[str, Form()],
@@ -250,6 +256,7 @@ async def robot_post_2(mpw: Annotated[str, Form()],
         '/robot', 
         status_code=status.HTTP_302_FOUND)    
 
+# This is what the audio player uses to pull the DTMF stream
 @app.get("/robot/sound", response_class=Response)
 async def robot_sound(session_key: Union[str, None] = Cookie(None)):
     session = get_session(session_key)
