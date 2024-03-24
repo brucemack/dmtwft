@@ -17,12 +17,10 @@
 * NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
 """
 import time    
-import math
-import os
-from typing import Union, Annotated, Optional
-import tempfile
+from typing import Union, Annotated
 import struct
 import wave
+import io
 
 import starlette.status as status
 from fastapi import FastAPI, Request, Response, UploadFile, Form, Cookie, HTTPException
@@ -125,23 +123,17 @@ def generate_dtmf(session: dict):
         session["message"] = "Unable to process file: " + str(ex)
         return       
 
-    # Dump PCM to .WAV
-    out_fn = tempfile.NamedTemporaryFile(delete=False)
-
-    # TODO: IN-MEMORY FILE!
-
     # Dump PCM to .WAV.  
-    with wave.open(out_fn, "wb") as f:
-        f.setnchannels(1)
-        f.setsampwidth(2)
-        f.setframerate(sample_rate)
-        f.setnframes(len(wav_data))
-        f.writeframesraw(struct.pack("<{}h".format(len(wav_data)), *wav_data))
-    # Load temp file into bytes
-    with open(out_fn.name, "rb") as f:
-        session["sound"] = f.read()
-    # Erase temp file
-    #os.unlink(out_fn.name)
+    with io.BytesIO() as of:
+        with wave.open(of, "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(sample_rate)
+            wav.setnframes(len(wav_data))
+            wav.writeframesraw(struct.pack("<{}h".format(len(wav_data)), *wav_data))
+        # Load temp .WAV file into a byte array in the session
+        of.seek(0)
+        session["sound"] = of.read()
 
 @app.get("/robot", response_class=HTMLResponse)
 async def robot_render(request: Request, 

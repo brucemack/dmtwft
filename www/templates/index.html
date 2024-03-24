@@ -1,20 +1,47 @@
+{#
+* Copyright (C) 2024, Bruce MacKinnon KC1FSZ
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+* NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
+#}
 <html>
-    <head>
+    <head>        
         <link rel="stylesheet" href="assets/index.css">
         <script>
 function show_spinner() {
     document.getElementById("spinner").style.display = "block"
 }
         </script>
+        <title>DTMF Robot by KC1FSZ</title>
     </head>
     <body>
         <img src="assets/logo.png" width="250"/>
-        <p class="intro">The DTMF Robot generates DTMF command sequences needed to program an S-SCOM 5K/6K/7K repeater controller,
+        <p class="intro">
+The DTMF Robot generates DTMF command sequences needed to program an S-COM 5K/6K/7K repeater controller,
 or for other situations where you need to maintain long/complex DTMF commands. Simply upload 
 your existing S-COM Programmer command script, press GENERATE, download the audio file (in .WAV format), and play the file into your 
-repeater controller.</p>
-        <p class="disclaimer">This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
-suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db/kc1fsz">good in QRZ</a>).  Please don't bother S-COM with support requests!</p>
+repeater controller.
+        </p>
+        <p>
+Information about the original S-COM Programmer (written by Dave Maciorowski WA1JHK) and the methods of playing DTMF streams
+into S-COM controllers can be found <a href="https://www.repeater-builder.com/scom/controller-direct-programming.html">here on the Repeater Builder website</a>.
+        </p>
+        <p class="disclaimer">
+This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
+suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db/kc1fsz">good in QRZ</a>).  Please don't bother 
+S-COM with support requests!</p>
         <fieldset>
             <legend>Step 1: Select a File (in S-COM Programmer format)</legend>
             <form id="form_1a" method="post" action="robot-form-1a" enctype="multipart/form-data">
@@ -26,8 +53,8 @@ suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db
                 <label for="url_file">Pull a File From the Web:</label>
                 <input id="url_file" name="url_file" type="text" placeholder="http://yourfile_url" 
                     value="{{ url_file }}" size="60"/>
-                <i><small>(This option can be be used to generate DTMF from a repeater script stored in GITHUB or some other 
-version code repository.)</small></i>
+                <i><small>(This option can be be used to generate DTMF from a repeater script stored in Github or some other 
+version control repository.)</small></i>
             </form>
         </fieldset>
         <br/>
@@ -85,7 +112,15 @@ version code repository.)</small></i>
 </pre>
         </div>
         <hr/>
-        <i>Copyright (C) 2024 - Bruce MacKinnon KC1FSZ</i>
+        <i>Copyright (C) 2024 - <a href="https://www.qrz.com/db/kc1fsz">Bruce MacKinnon KC1FSZ</a></i>
     </body>
-    <script src="assets/index.js"></script>        
+    <script>
+document.getElementById("upload_file").onchange = function() {
+    document.getElementById("form_1a").submit();
+};
+
+document.getElementById("url_file").onchange = function() {
+    document.getElementById("form_1b").submit();
+};
+    </script>
 </html>

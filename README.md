@@ -2,19 +2,19 @@ Overview
 ========
 
 A utility for converting S-COM Programmer files into a DTMF stream that 
-can be played into a S-COM 5K/6K/7K repeater controller.  This eliminates
+can be played into an S-COM 5K/6K/7K repeater controller.  This eliminates
 the need to be using modems or other old-school ways of playing the 
 required tones into the repeater.
 
 Advanced Language Features
 ==========================
 
-$PLAY 
-
-$TONECODE(hz)
-
 Commands
 ========
+
+Build Docker image:
+
+        
 
 Starting the web server:
 
