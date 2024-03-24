@@ -12,8 +12,28 @@ Programming tool and defined the file format used by this tool.
 Advanced Language Features
 ==========================
 
+(Docs to follow)
+
+Program Structure
+=================
+
+This program is written in Python.  Plain math is used to synthesize the DTMF. The [wave module](https://docs.python.org/3/library/wave.html) 
+is used to create the .WAV files. The web stuff is created using FastAPI and Jinja2 (for templates).  There are no other 
+dependencies. 
+
+A command-line version could be created if there was sufficient interest.
+
+Web Page Demo
+=============
+
+![DTMF Robot Screen](docs/pic-0.png)
+
 Commands
 ========
+
+Starting the web server:
+
+        uvicorn main:app --host 0.0.0.0 --port 8081 --reload --no-use-colors
 
 Build Docker image:
 
@@ -22,14 +42,10 @@ Build Docker image:
         docker tag dtmf-robot:latest brucemack/dtmf-robot:0.0        
         docker push brucemack/dtmf-robot:0.0      
 
-Start Docker container:
+Start Docker container locally:
 
         docker run -d --name dtmf-robot --restart=unless-stopped -p 8081:8080 dtmf-robot
         docker run -d --name dtmf-robot --restart=unless-stopped -p 8081:8080 brucemack/dtmf-robot:0.0
-
-Starting the web server:
-
-        uvicorn main:app --host 0.0.0.0 --port 8081 --reload --no-use-colors
 
 Getting a token for AWS ECS (lasts for 12 hours) (see https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html)
 
@@ -42,7 +58,6 @@ Tag the image:
 Push the image:
 
         docker push ACCTIDACCID.dkr.ecr.us-east-1.amazonaws.com/dtmf-robot:latest
-
 
 References
 ==========
