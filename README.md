@@ -14,7 +14,14 @@ Commands
 
 Build Docker image:
 
-        
+        docker build -t dtmf-robot .  
+        docker login
+        docker tag dtmf-robot:latest brucemack/dtmf-robot:0.0        
+        docker push brucemack/dtmf-robot:0.0      
+
+Start Docker container (from local registry)
+
+        docker run -d --name dtmf-robot --restart=unless-stopped -p 8081:8080 dtmf-robot
 
 Starting the web server:
 
