@@ -16,11 +16,7 @@ COPY main.py .
 COPY log_conf.yaml .
 
 RUN mkdir -p utils
-COPY utils/__init__.py utils
-COPY utils/convert.py utils
-COPY utils/DTMF.py utils
-COPY utils/parse.py utils
-COPY utils/Token.py utils
+COPY utils/*.py utils
 
 RUN mkdir -p www
 
