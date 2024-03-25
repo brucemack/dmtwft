@@ -60,6 +60,8 @@ def get_default_session():
     s["gap_dur"] = "75"
     s["sound"] = None
     s["message"] = None
+    s["pause_dur"] = 0
+    s["pause_count"] = 0
     return s
 
 def load_url(session):
@@ -93,6 +95,8 @@ def generate_dtmf(session: dict):
     warm_init = session["warminit"] == "on"
     tone_dur = float(session["tone_dur"]) / 1000
     gap_dur = float(session["gap_dur"]) / 1000
+    pause_dur = float(session["pause_dur"]) 
+    pause_count = int(session["pause_count"]) 
 
     row = 1
     for line in session["contents"].splitlines():
@@ -105,7 +109,8 @@ def generate_dtmf(session: dict):
         # Convert the script to DTMF symbols
         dtmf_symbols = convert.convert_script_to_dtmf_symbols(constants, script, warm_init, False)
         # Convert DTMF symbols to PCM tone data
-        wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, tone_dur, gap_dur, mag / 2)
+        wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, tone_dur, gap_dur, mag / 2,
+            pause_dur, pause_count)
     except Exception as ex:
         print("Exception", ex)
         session["message"] = "Unable to process file: " + str(ex)
@@ -159,6 +164,7 @@ async def robot_render(request: Request,
     # Stage data for Jinja2 template
     context = { 
         "version": VERSION,
+        "cache_buster": str(time.time()),
         "url_file": session["url_file"],
         "contents": contents,
         "mpw": session["mpw"],
@@ -167,6 +173,8 @@ async def robot_render(request: Request,
         "rbpw": session["rbpw"],
         "tone_dur": session["tone_dur"],
         "gap_dur": session["gap_dur"],
+        "pause_dur": session["pause_dur"],
+        "pause_count": session["pause_count"],
         "warminit": session["warminit"],
         "message": message,
         "sound": sound
@@ -223,6 +231,8 @@ async def robot_post_2(mpw: Annotated[str, Form()],
                        rbpw: Annotated[str, Form()],
                        tone_dur: Annotated[str, Form()],
                        gap_dur: Annotated[str, Form()],
+                       pause_dur: Annotated[str, Form()],
+                       pause_count: Annotated[str, Form()],
                        # Watch out, checkboxes don't get sent when unchecked
                        warminit: Annotated[str, Form()] = "off",
                        session_key: Union[str, None] = Cookie(None)):                        
@@ -235,6 +245,8 @@ async def robot_post_2(mpw: Annotated[str, Form()],
     session["rbpw"] = rbpw
     session["tone_dur"] = tone_dur
     session["gap_dur"] = gap_dur
+    session["pause_dur"] = pause_dur
+    session["pause_count"] = pause_count
     session["warminit"] = warminit
     # Always clear sound when the session is changed
     session["sound"] = None

@@ -54,14 +54,22 @@ def gen_silence(sample_freq, dur_seconds):
 def gen_dtmf(button, sample_freq, dur_seconds, mag):
     return gen_two_tones(dtmf_pairs[button][0], dtmf_pairs[button][1], sample_freq, dur_seconds, mag)
 
-def gen_dtmf_seq(buttons, sample_freq, tone_dur_seconds, gap_dur_seconds, mag):
+def gen_dtmf_seq(symbols, sample_freq, tone_dur_seconds, gap_dur_seconds, mag, 
+                 pause_dur_seconds, pause_count):
     result = []
+    symbol_count = 0
     # Add a leading silence 
     result = result + gen_silence(sample_freq, 2)
     # Add each DTMF button 
-    for button in buttons:
+    for symbol in symbols:
+        symbol_count = symbol_count + 1
         # Tone 
-        result.extend(gen_dtmf(button, sample_freq, tone_dur_seconds, mag))
+        result.extend(gen_dtmf(symbol, sample_freq, tone_dur_seconds, mag))
         # Silence
         result.extend(gen_silence(sample_freq, gap_dur_seconds))
+        # Optionally pause once in awhile
+        if pause_dur_seconds != 0 and pause_count != 0:
+            if symbol_count % pause_count == 0:
+                # Silence
+                result.extend(gen_silence(sample_freq, pause_dur_seconds))
     return result

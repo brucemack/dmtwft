@@ -87,8 +87,12 @@ version control repository.)</small></i>
                 <br/>
                 <label for="tone_dur">Tone (ms)</label>
                 <input type="text" value="{{tone_dur}}" id="tone_dur" name="tone_dur" size="4"/>
-                <label for="gap_dur">Pause (ms)</label>
+                <label for="gap_dur">Inter-tone gap (ms)</label>
                 <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="4"/>
+                <label for="tone_dur">Pause (s)</label>
+                <input type="text" value="{{pause_dur}}" id="pause_dur" name="pause_dur" size="4"/>
+                <label for="tone_dur">after symbols (count)</label>
+                <input type="text" value="{{pause_count}}" id="pause_count" name="pause_count" size="4"/>
                 <br/>
                 <input class="generate-button" type="submit" value="Generate" onclick="generate_pressed()"/>
             </fieldset>
@@ -103,7 +107,7 @@ version control repository.)</small></i>
                 {% if sound == "good" %}        
                 <div id="sound-controls">
                     <audio controls>
-                        <source src="robot/sound" type="audio/wav">
+                        <source src="robot/sound?cache_buster={{ cache_buster }}" type="audio/wav">
                     Your browser does not support the audio element.
                     </audio>            
                     <br/>    
