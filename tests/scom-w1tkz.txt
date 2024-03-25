@@ -22,10 +22,12 @@ Link_VU=2001
 Tail16=2002
 tail9=2003
 D002=2004
+d002=2004
 Ahead=2005
 Back=2006
 Keyup=2007
 KeyupOff=2008
+d003=2009
 
 ; Time of day 
 ; Speak: Delay, $DOW $MONTH $DAY at $12HOUR $AMPM  adjust ^R108^

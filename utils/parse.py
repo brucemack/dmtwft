@@ -181,7 +181,7 @@ def convert_token_to_dtmf_symbols(token):
     # codes.
     if token.is_quoted:
         # Take the token and convert each character
-        for c in token.text:
+        for c in token.text.upper():
             if c in alpha_codes:
                 eff_token = eff_token + alpha_codes[c]
             else:

@@ -26,9 +26,7 @@ import utils.DTMF as DTMF
 from utils.Token import Token
 import utils.convert as convert 
 
-print(uuid.uuid4())
-
-in_fn = "tests/n1lma-5k.txt"
+in_fn = "tests/scom-w1tkz.txt"
 #in_fn = "tests/w1dx-5k.txt"
 #out_fn = "d:/demo.wav"
 out_fn = "./demo.wav"
@@ -48,17 +46,26 @@ constants["CPW"] = [ Token("98") ]
 constants["APW"] = [ Token("98") ]
 constants["RBPW"] = [ Token("98") ]
 
+row = 1
+token_count = 0
+
 # Read a SCOM Programmer file
 with open(in_fn, 'r') as f:
     lines = f.readlines()
     for line in lines:
-        tokens = parse.tokenize_line(line.strip())
+        tokens = parse.tokenize_line(line.strip(), row)
         if len(tokens) > 0:
             script.append(tokens)
+            token_count = token_count + len(tokens)
+        row = row + 1
+
+print("There are", len(script), "lines of tokens")
+print("There are", token_count, "tokens")
 
 try:
     # Convert the script to DTMF symbols
     dtmf_symbols = convert.convert_script_to_dtmf_symbols(constants, script, True, False)
+    print("There are", len(dtmf_symbols), "DTMF symbols")
     # Convert DTMF symbols to PCM tone data
     wav_data = DTMF.gen_dtmf_seq(dtmf_symbols, sample_rate, tone_dur, gap_dur, mag / 2)
 except Exception as ex:
