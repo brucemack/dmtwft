@@ -38,7 +38,7 @@ from utils.Token import Token
 import utils.convert as convert 
 import utils.sessions as sessions
 
-VERSION = "0.2"
+VERSION = "0.3"
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="www/assets"), name="static")
@@ -241,6 +241,9 @@ async def robot_post_2(mpw: Annotated[str, Form()],
 
     # Re-generate the sound
     generate_dtmf(session)
+
+    # Add a sleep to improve ergonomics
+    time.sleep(5)    
 
     # Go back to the normal GET
     return RedirectResponse(

@@ -20,8 +20,9 @@
     <head>        
         <link rel="stylesheet" href="assets/index.css">
         <script>
-function show_spinner() {
+function generate_pressed() {
     document.getElementById("spinner").style.display = "block"
+    document.getElementById("sound-controls").style.display = "none"
 }
         </script>
         <title>DTMF Robot by KC1FSZ</title>
@@ -89,7 +90,7 @@ version control repository.)</small></i>
                 <label for="gap_dur">Pause (ms)</label>
                 <input type="text" value="{{gap_dur}}" id="gap_dur" name="gap_dur" size="4"/>
                 <br/>
-                <input class="generate-button" type="submit" value="Generate" onclick="show_spinner()"/>
+                <input class="generate-button" type="submit" value="Generate" onclick="generate_pressed()"/>
             </fieldset>
         </form>
         <br/>
@@ -97,15 +98,17 @@ version control repository.)</small></i>
             <fieldset>
                 <legend>Step 3: Download Audio</legend>
                 <div id="spinner" style="display: none">
-                    <h2>Generating ...</h2>
+                    <b>Generating ...</b>
                 </div>
                 {% if sound == "good" %}        
-                <audio controls>
-                    <source src="robot/sound" type="audio/wav">
-                  Your browser does not support the audio element.
-                </audio>            
-                <br/>    
-                <a href="robot/sound">Download Link</a>
+                <div id="sound-controls">
+                    <audio controls>
+                        <source src="robot/sound" type="audio/wav">
+                    Your browser does not support the audio element.
+                    </audio>            
+                    <br/>    
+                    <a href="robot/sound">Download Link</a>
+                </div>  
                 {% endif %}        
             </fieldset>
         </form>
