@@ -55,6 +55,9 @@ def gen_dtmf(button, sample_freq, dur_seconds, mag):
 
 def gen_dtmf_seq(buttons, sample_freq, tone_dur_seconds, gap_dur_seconds, mag):
     result = []
+    # Add a leading silence 
+    result = result + gen_silence(sample_freq, 2)
+    # Add each DTMF button 
     for button in buttons:
         # Tone 
         result = result + gen_dtmf(button, sample_freq, tone_dur_seconds, mag)

@@ -31,17 +31,26 @@ function show_spinner() {
         <p class="intro">
 The DTMF Robot generates DTMF command sequences needed to program an S-COM 5K/6K/7K repeater controller,
 or for other situations where you need to maintain long/complex DTMF commands. Simply upload 
-your existing S-COM Programmer command script, press GENERATE, download the audio file (in .WAV format), and play the file into your 
+your existing S-COM Programmer command script (<a href="http://www.scomcontrollers.com/downloads/sample.txt">sample.txt</a>), 
+press GENERATE, download the audio file (in .WAV format), and play the file into your 
 repeater controller.
         </p>
         <p>
-Information about the original S-COM Programmer (written by Dave Maciorowski WA1JHK) and the methods of playing DTMF streams
-into S-COM controllers can be found <a href="https://www.repeater-builder.com/scom/controller-direct-programming.html">here on the Repeater Builder website</a>.
+This program is based on the concept from the original S-COM Programmer, written by Dave Maciorowski WA1JHK.  Details of
+S-COM's official product and the methods of playing DTMF streams
+into S-COM controllers can be found <a href="http://scomcontrollers.com/">on the S-COM website</a> and 
+<a href="https://www.repeater-builder.com/scom/controller-direct-programming.html">here on the Repeater Builder website</a>. 
+S-COM sells their S-COM Programmer for the 32-bit Windows platform so please contact them to find out about that 
+option if it works better for you.
+        </p>
+        <p>
+The S-COM documentation that explains the programmer file format is located here (link to follow). We've 
+tried to stay as compatible as possible.
         </p>
         <p class="disclaimer">
-This tool is provided for amateur radio use and <u>is not an S-COM product</u>.  Questions and/or 
+This tool is provided for amateur radio use and <u>is not an S-COM product</u>. <b>Use at your own risk.</b> Questions and/or 
 suggestions should be sent to the author KC1FSZ (<a href="https://www.qrz.com/db/kc1fsz">good in QRZ</a>).  Please don't bother 
-S-COM with support requests!</p>
+S-COM with support requests!  Thanks to the S-COM team for being open to this experimentation.</p>
         <fieldset>
             <legend>Step 1: Select a File (in S-COM Programmer format)</legend>
             <form id="form_1a" method="post" action="robot-form-1a" enctype="multipart/form-data">
