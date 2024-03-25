@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # ----- Application Build ----------------------------------------------------
 COPY main.py .
-COPY __init__.py .
+COPY log_conf.yaml .
 
 RUN mkdir -p utils
 COPY utils/__init__.py utils
@@ -34,4 +34,4 @@ COPY www/templates/index.html www/templates
 
 # ----- Application Run ------------------------------------------------------
 # The uvicorn command is controller by PATH (so uses venv)
-CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080" ]
+CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--log-config=log_conf.yaml" ]

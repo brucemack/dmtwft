@@ -32,4 +32,4 @@ class Token:
 
     def __eq__(self, other):
         return self.text == other.text and \
-          self.is_quoted == other.is_quotec
+          self.is_quoted == other.is_quoted

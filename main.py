@@ -21,6 +21,8 @@ from typing import Union, Annotated
 import struct
 import wave
 import io
+import uuid 
+import logging
 
 import starlette.status as status
 from fastapi import FastAPI, Request, Response, UploadFile, Form, Cookie, HTTPException
@@ -34,14 +36,16 @@ import utils.parse as parse
 import utils.DTMF as DTMF
 from utils.Token import Token
 import utils.convert as convert 
+import utils.sessions as sessions
+
+VERSION = "0.2"
 
 app = FastAPI()
 app.mount("/assets", StaticFiles(directory="www/assets"), name="static")
 templates = Jinja2Templates(directory="www/templates")
+logger = logging.getLogger(__name__)
 
-# Where the session state is held
-sessions = dict()
-cookie_counter = 0
+logger.info("Version %s", VERSION)
 
 def get_default_session():
     s = dict()
@@ -57,22 +61,6 @@ def get_default_session():
     s["sound"] = None
     s["message"] = None
     return s
-
-def get_session(session_key):
-
-    global cookie_counter
-
-    if session_key is None:
-        session_key = "session" + str(cookie_counter)
-        cookie_counter = cookie_counter + 1
-
-    if not session_key in sessions:
-        sessions[session_key] = get_default_session()
-        sessions[session_key]["key"] = session_key
-        sessions[session_key]["created"] = int(time.time())
-        # TODO: LRU PRUNE!
-
-    return sessions[session_key]
 
 def load_url(session):
     if session["url_file"]:
@@ -135,6 +123,8 @@ def generate_dtmf(session: dict):
         of.seek(0)
         session["sound"] = of.read()
 
+    logger.info("DTMF generation was successful. Samples: %d", len(wav_data))
+
 # ===== Application Routes ====================================================
 
 # The "main" screen:
@@ -143,7 +133,7 @@ async def robot_render(request: Request,
                        demo: Union[str, None] = None,
                        session_key: Union[str, None] = Cookie(None)):
     
-    session = get_session(session_key)
+    session = sessions.get_session(session_key, get_default_session)
 
     # Look for the case where a demo URL was provided that pre-loads some
     # contents
@@ -168,6 +158,7 @@ async def robot_render(request: Request,
 
     # Stage data for Jinja2 template
     context = { 
+        "version": VERSION,
         "url_file": session["url_file"],
         "contents": contents,
         "mpw": session["mpw"],
@@ -193,7 +184,7 @@ async def robot_render(request: Request,
 async def robot_post_1a(upload_file: UploadFile,
                      session_key: Union[str, None] = Cookie(None)):  
 
-    session = get_session(session_key)
+    session = sessions.get_session(session_key)
     session["contents"] = None
     contents = await upload_file.read()
     session["contents"] = contents.decode("utf8")
@@ -211,7 +202,7 @@ async def robot_post_1a(upload_file: UploadFile,
 async def robot_post_1b(url_file: Annotated[str, Form()] = "",
                      session_key: Union[str, None] = Cookie(None)):  
 
-    session = get_session(session_key)
+    session = sessions.get_session(session_key)
     session["url_file"] = url_file
     session["contents"] = None
     # Always clear sound when the session is changed
@@ -237,7 +228,7 @@ async def robot_post_2(mpw: Annotated[str, Form()],
                        session_key: Union[str, None] = Cookie(None)):                        
     
     # Update session
-    session = get_session(session_key)
+    session = sessions.get_session(session_key)
     session["mpw"] = mpw
     session["cpw"] = cpw
     session["apw"] = apw
@@ -259,8 +250,9 @@ async def robot_post_2(mpw: Annotated[str, Form()],
 # This is what the audio player uses to pull the DTMF stream
 @app.get("/robot/sound", response_class=Response)
 async def robot_sound(session_key: Union[str, None] = Cookie(None)):
-    session = get_session(session_key)
+    session = sessions.get_session(session_key)
     if session["sound"] == None:
          raise HTTPException(status_code=404, detail="Item not found")
     else:
-        return Response(content=session["sound"], media_type="audio/wav")    
+        headers = { "Cache-Control": "no-cache, max-age=0" }
+        return Response(content=session["sound"], media_type="audio/wav", headers=headers)    
